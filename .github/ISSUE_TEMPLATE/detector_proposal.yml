@@ -1,0 +1,30 @@
+name: Detector / signature proposal
+description: Propose a new platform, AI-builder or template signature
+labels: [detector, enhancement]
+body:
+  - type: input
+    id: subject
+    attributes:
+      label: Platform / tool
+    validations:
+      required: true
+  - type: textarea
+    id: markers
+    attributes:
+      label: Observable markers
+      description: Exact meta tags, headers, asset paths, comments or selectors.
+    validations:
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Provenance
+      description: Vendor documentation link, or how you reproduced the marker (e.g. freshly generated project on a given date). Unreproduced markers ship as experimental.
+    validations:
+      required: true
+  - type: textarea
+    id: fp
+    attributes:
+      label: Known false positives and limitations
+    validations:
+      required: true

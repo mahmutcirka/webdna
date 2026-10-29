@@ -1,0 +1,200 @@
+/* Northwind fixture stylesheet — hand-written for WebDNA tests. */
+:root {
+  --nw-ink: #1f2933;
+  --nw-paper: #fbfaf7;
+  --nw-accent: #2f6f4e;
+  --nw-muted: #616e7c;
+  --nw-radius: 8px;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--nw-ink);
+  background: var(--nw-paper);
+  line-height: 1.5;
+}
+.site-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  border-bottom: 1px solid #e4e7eb;
+}
+.brand {
+  font-weight: 700;
+  color: var(--nw-ink);
+  text-decoration: none;
+  font-size: 20px;
+}
+.site-nav {
+  display: flex;
+  gap: 24px;
+}
+.site-nav a {
+  color: var(--nw-muted);
+  text-decoration: none;
+  font-size: 16px;
+}
+.menu-toggle {
+  display: none;
+}
+main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.hero {
+  padding: 96px 0 64px;
+}
+.hero h1 {
+  font-size: 48px;
+  line-height: 1.1;
+  margin: 0 0 16px;
+}
+.lead {
+  font-size: 20px;
+  color: var(--nw-muted);
+  margin: 0 0 32px;
+}
+.actions {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+.button {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: var(--nw-radius);
+  font-family: system-ui, sans-serif;
+  font-size: 16px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.button--primary {
+  background: var(--nw-accent);
+  color: #ffffff;
+}
+.button--ghost {
+  background: transparent;
+  color: var(--nw-accent);
+  border-color: var(--nw-accent);
+}
+.features h2,
+.gallery h2,
+.signup h2 {
+  font-size: 32px;
+  margin: 0 0 24px;
+}
+.features {
+  padding: 48px 0;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.card {
+  background: #ffffff;
+  border: 1px solid #e4e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  min-height: 160px;
+}
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+.card p {
+  margin: 0;
+  color: var(--nw-muted);
+}
+.badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 2px 8px;
+  background: #e3f2ea;
+  color: var(--nw-accent);
+  border-radius: 999px;
+  font-size: 12px;
+  font-family: system-ui, sans-serif;
+}
+.gallery {
+  padding: 48px 0;
+}
+.frame {
+  border-radius: 16px;
+  overflow: hidden;
+  width: 600px;
+  max-width: 100%;
+}
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.signup {
+  padding: 48px 0 96px;
+}
+.signup form {
+  display: flex;
+  gap: 8px;
+}
+.signup input {
+  padding: 12px;
+  border: 1px solid #cbd2d9;
+  border-radius: var(--nw-radius);
+  font-size: 16px;
+  min-width: 280px;
+}
+.fineprint {
+  color: #c3c9cf;
+  font-size: 14px;
+}
+.site-footer {
+  padding: 32px;
+  border-top: 1px solid #e4e7eb;
+  color: var(--nw-muted);
+}
+
+@media (max-width: 767px) {
+  .site-header {
+    padding: 12px 16px;
+  }
+  .site-nav {
+    display: none;
+  }
+  .menu-toggle {
+    display: inline-block;
+    padding: 8px 12px;
+    border: 1px solid #cbd2d9;
+    background: #ffffff;
+    border-radius: var(--nw-radius);
+  }
+  main {
+    padding: 0 16px;
+  }
+  .hero {
+    padding: 48px 0 32px;
+  }
+  .hero h1 {
+    font-size: 32px;
+  }
+  .actions {
+    flex-direction: column;
+  }
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+  .signup form {
+    flex-direction: column;
+  }
+  .signup input {
+    min-width: 0;
+  }
+}

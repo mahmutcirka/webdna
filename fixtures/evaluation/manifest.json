@@ -1,0 +1,90 @@
+{
+  "description": "Synthetic, hand-labelled evaluation cases. Every fixture was written by WebDNA maintainers for testing; none is a copy of a real website. Labels describe the evidence each fixture was DESIGNED to contain, not the true origin of any real site. Results on this set say nothing about accuracy on the open web.",
+  "license": "Apache-2.0 (same as the repository)",
+  "cases": [
+    {
+      "id": "explicit-lovable-marker",
+      "fixture": "generator-marker",
+      "url": "https://bloom-yoga.example/",
+      "expected": "strong_ai_evidence",
+      "evidence": "Lovable editor script + default Lovable meta tags"
+    },
+    {
+      "id": "lovable-hosting-domain",
+      "fixture": "removed-marker",
+      "url": "https://bloom-yoga.lovable.app/",
+      "expected": "strong_ai_evidence",
+      "evidence": "Served from Lovable's hosting domain"
+    },
+    {
+      "id": "removed-marker",
+      "fixture": "removed-marker",
+      "url": "https://bloom-yoga.example/",
+      "expected": "no_meaningful_evidence",
+      "evidence": "Same app with every builder marker removed"
+    },
+    {
+      "id": "framework-only",
+      "fixture": "framework-only",
+      "url": "https://acmeline.example/",
+      "expected": "no_meaningful_evidence",
+      "evidence": "Next.js + React + Tailwind, generic landing copy"
+    },
+    {
+      "id": "hand-written",
+      "fixture": "basic-landing",
+      "url": "https://northwind.example/",
+      "expected": "no_meaningful_evidence",
+      "evidence": "Hand-written HTML/CSS"
+    },
+    {
+      "id": "article-about-ai",
+      "fixture": "ai-article",
+      "url": "https://blog.example/",
+      "expected": "no_meaningful_evidence",
+      "evidence": "Human article mentioning and linking AI builders; AI-generated image"
+    },
+    {
+      "id": "starter-template",
+      "fixture": "template-default",
+      "url": "https://starter.example/",
+      "expected": "no_meaningful_evidence",
+      "evidence": "Unchanged Vite starter + placeholder copy (template, not AI)"
+    },
+    {
+      "id": "ambiguous-weak",
+      "fixture": "ambiguous",
+      "url": "https://harbor.example/",
+      "expected": "weak_or_ambiguous",
+      "evidence": "Only experimental, weak indicators"
+    },
+    {
+      "id": "replit-hosting",
+      "fixture": "removed-marker",
+      "url": "https://bloom.replit.app/",
+      "expected": "weak_or_ambiguous",
+      "evidence": "Hosting on a general platform that also offers an AI agent"
+    },
+    {
+      "id": "conflicting",
+      "fixture": "conflicting",
+      "url": "https://bakery.example/",
+      "expected": "strong_ai_evidence",
+      "evidence": "WordPress markers plus Lovable editor script"
+    },
+    {
+      "id": "challenge-page",
+      "fixture": "challenge-page",
+      "url": "https://protected.example/",
+      "expected": "insufficient_evidence",
+      "evidence": "Bot-challenge interstitial"
+    },
+    {
+      "id": "empty-shell",
+      "fixture": "empty",
+      "url": "https://empty.example/",
+      "expected": "insufficient_evidence",
+      "evidence": "Client-rendered shell with nothing to inspect statically"
+    }
+  ]
+}

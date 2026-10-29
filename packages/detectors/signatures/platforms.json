@@ -1,0 +1,862 @@
+{
+  "signatureSet": "platforms",
+  "version": "2026.10.0",
+  "description": "CMS, website builder, framework, hosting and build-tool fingerprints. Platform identification is never, by itself, evidence of AI involvement.",
+  "signatures": [
+    {
+      "id": "wordpress",
+      "version": "1.0.0",
+      "name": "WordPress",
+      "subjectType": "cms",
+      "status": "active",
+      "provenance": {
+        "type": "documented",
+        "reference": "https://developer.wordpress.org/reference/functions/wp_generator/",
+        "lastReviewed": "2026-10-29"
+      },
+      "description": "WordPress emits a generator meta tag by default and serves theme/plugin assets from /wp-content/ and /wp-includes/.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^WordPress\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Default WordPress generator meta tag."
+        },
+        {
+          "type": "asset_path",
+          "pattern": "/wp-(content|includes)/",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Asset served from a WordPress core directory."
+        },
+        {
+          "type": "dom_selector",
+          "selector": "link[rel='https://api.w.org/']",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "WordPress REST API discovery link."
+        }
+      ],
+      "limitations": [
+        "Generator tags are often removed by security plugins.",
+        "Headless WordPress setups may expose none of these markers."
+      ],
+      "falsePositiveConsiderations": ["Static mirrors of WordPress sites keep /wp-content/ paths."]
+    },
+    {
+      "id": "wix",
+      "version": "1.0.0",
+      "name": "Wix",
+      "subjectType": "website_builder",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Wix-hosted sites include a Wix generator meta tag and load assets from Wix static domains.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "Wix\\.com Website Builder",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Wix generator meta tag."
+        },
+        {
+          "type": "asset_path",
+          "pattern": "^https?://([a-z0-9-]+\\.)*(parastorage|wixstatic)\\.com/",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Asset from a Wix static domain."
+        }
+      ],
+      "limitations": [
+        "Wix offers AI-assisted site creation, but identifying Wix says nothing about whether it was used."
+      ],
+      "falsePositiveConsiderations": ["Non-Wix sites can embed Wix-hosted images."]
+    },
+    {
+      "id": "squarespace",
+      "version": "1.0.0",
+      "name": "Squarespace",
+      "subjectType": "website_builder",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Squarespace pages contain a 'This is Squarespace.' HTML comment and load assets from Squarespace CDNs.",
+      "matchers": [
+        {
+          "type": "html_comment",
+          "pattern": "This is Squarespace\\.",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Squarespace page comment."
+        },
+        {
+          "type": "asset_path",
+          "pattern": "^https?://([a-z0-9-]+\\.)*(squarespace|sqspcdn)\\.com/",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Asset from a Squarespace CDN."
+        }
+      ],
+      "limitations": [
+        "Squarespace offers AI-assisted design features; platform identification does not indicate their use."
+      ],
+      "falsePositiveConsiderations": ["Embedded Squarespace assets on other sites."]
+    },
+    {
+      "id": "webflow",
+      "version": "1.0.0",
+      "name": "Webflow",
+      "subjectType": "website_builder",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Webflow exports and hosted sites set data-wf-site / data-wf-page attributes on <html> and a Webflow generator meta tag.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Webflow\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Webflow generator meta tag."
+        },
+        {
+          "type": "dom_selector",
+          "selector": "html[data-wf-site], html[data-wf-page]",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Webflow site/page attributes on the root element."
+        }
+      ],
+      "limitations": ["Exported Webflow code may be hosted and edited elsewhere."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "shopify",
+      "version": "1.0.0",
+      "name": "Shopify",
+      "subjectType": "website_builder",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Shopify storefronts load theme assets from cdn.shopify.com and define a global Shopify object.",
+      "matchers": [
+        {
+          "type": "asset_path",
+          "pattern": "^https?://cdn\\.shopify\\.com/",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Asset from Shopify's CDN."
+        },
+        {
+          "type": "runtime_global",
+          "name": "Shopify",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "window.Shopify is defined by Shopify themes."
+        },
+        {
+          "type": "header",
+          "name": "x-shopid",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Shopify shop id response header."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": [
+        "Shopify Buy Buttons embedded in non-Shopify sites load cdn.shopify.com assets."
+      ]
+    },
+    {
+      "id": "framer",
+      "version": "1.0.0",
+      "name": "Framer",
+      "subjectType": "website_builder",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Framer-published sites include a Framer generator meta tag and load assets from framerusercontent.com.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Framer\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Framer generator meta tag."
+        },
+        {
+          "type": "asset_path",
+          "pattern": "^https?://([a-z0-9-]+\\.)*framerusercontent\\.com/",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Asset from Framer's user-content CDN."
+        }
+      ],
+      "limitations": [
+        "Framer offers AI page generation; identifying Framer does not indicate it was used."
+      ],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "ghost",
+      "version": "1.0.0",
+      "name": "Ghost",
+      "subjectType": "cms",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Ghost themes output a Ghost generator meta tag by default.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Ghost\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Ghost generator meta tag."
+        }
+      ],
+      "limitations": ["Removable by theme authors."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "drupal",
+      "version": "1.0.0",
+      "name": "Drupal",
+      "subjectType": "cms",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Drupal sends an X-Generator header and/or generator meta tag by default.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Drupal\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Drupal generator meta tag."
+        },
+        {
+          "type": "header",
+          "name": "x-generator",
+          "pattern": "^Drupal\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Drupal X-Generator response header."
+        }
+      ],
+      "limitations": ["Removable via configuration."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "joomla",
+      "version": "1.0.0",
+      "name": "Joomla",
+      "subjectType": "cms",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Joomla emits a generator meta tag by default.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Joomla!",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Joomla generator meta tag."
+        }
+      ],
+      "limitations": ["Removable via configuration."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "hugo",
+      "version": "1.0.0",
+      "name": "Hugo",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": {
+        "type": "documented",
+        "reference": "https://gohugo.io/functions/hugo/generator/",
+        "lastReviewed": "2026-10-29"
+      },
+      "description": "Many Hugo themes include the hugo.Generator meta tag.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Hugo\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Hugo generator meta tag."
+        }
+      ],
+      "limitations": ["Only present when the theme includes it."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "jekyll",
+      "version": "1.0.0",
+      "name": "Jekyll",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "The jekyll-seo-tag plugin emits a Jekyll generator meta tag.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Jekyll\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Jekyll generator meta tag."
+        }
+      ],
+      "limitations": ["Only present with jekyll-seo-tag or equivalent."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "docusaurus",
+      "version": "1.0.0",
+      "name": "Docusaurus",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Docusaurus sites emit a Docusaurus generator meta tag.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Docusaurus\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Docusaurus generator meta tag."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "gatsby",
+      "version": "1.0.0",
+      "name": "Gatsby",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Gatsby renders into a #___gatsby root and emits a generator meta tag.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Gatsby\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Gatsby generator meta tag."
+        },
+        {
+          "type": "dom_selector",
+          "selector": "#___gatsby",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Gatsby root element id."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "nextjs",
+      "version": "1.0.0",
+      "name": "Next.js",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Next.js serves build output from /_next/static/; the Pages Router embeds __NEXT_DATA__.",
+      "matchers": [
+        {
+          "type": "asset_path",
+          "pattern": "/_next/static/",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Asset served from the Next.js build output directory."
+        },
+        {
+          "type": "dom_selector",
+          "selector": "script#__NEXT_DATA__",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Next.js Pages Router data script."
+        },
+        {
+          "type": "runtime_global",
+          "name": "__next_f",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "React Server Components payload array used by the Next.js App Router."
+        },
+        {
+          "type": "header",
+          "name": "x-powered-by",
+          "pattern": "^Next\\.js",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Default Next.js X-Powered-By header."
+        }
+      ],
+      "limitations": [
+        "Next.js is used by human developers and AI tools alike; it is not an AI-origin signal."
+      ],
+      "falsePositiveConsiderations": [
+        "A reverse proxy could rewrite /_next/ paths onto a different stack (rare)."
+      ]
+    },
+    {
+      "id": "nuxt",
+      "version": "1.0.0",
+      "name": "Nuxt",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Nuxt serves build output from /_nuxt/ and defines __NUXT__ or a #__nuxt root.",
+      "matchers": [
+        {
+          "type": "asset_path",
+          "pattern": "/_nuxt/",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Asset from the Nuxt build output directory."
+        },
+        {
+          "type": "dom_selector",
+          "selector": "#__nuxt",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Nuxt root element id."
+        },
+        {
+          "type": "runtime_global",
+          "name": "__NUXT__",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "window.__NUXT__ payload."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "astro",
+      "version": "1.0.0",
+      "name": "Astro",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": {
+        "type": "documented",
+        "reference": "https://docs.astro.build/en/reference/api-reference/#generator",
+        "lastReviewed": "2026-10-29"
+      },
+      "description": "Astro starter templates emit Astro.generator as a meta tag; islands use <astro-island> elements.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^Astro\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Astro generator meta tag."
+        },
+        {
+          "type": "dom_selector",
+          "selector": "astro-island",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Astro island custom element."
+        },
+        {
+          "type": "asset_path",
+          "pattern": "/_astro/",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Asset from the default Astro build directory."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "sveltekit",
+      "version": "1.0.0",
+      "name": "SvelteKit",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "SvelteKit builds serve chunks from /_app/immutable/ and use data-sveltekit-* attributes.",
+      "matchers": [
+        {
+          "type": "asset_path",
+          "pattern": "/_app/immutable/",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Asset from the SvelteKit build directory."
+        },
+        {
+          "type": "dom_selector",
+          "selector": "[data-sveltekit-preload-data], [data-sveltekit-reload]",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "SvelteKit link options attribute."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "remix",
+      "version": "1.0.0",
+      "name": "Remix / React Router framework mode",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Remix and React Router framework mode expose a router context global.",
+      "matchers": [
+        {
+          "type": "runtime_global",
+          "name": "__remixContext",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "window.__remixContext is defined by Remix."
+        },
+        {
+          "type": "runtime_global",
+          "name": "__reactRouterContext",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "window.__reactRouterContext is defined by React Router framework mode."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "angular",
+      "version": "1.0.0",
+      "name": "Angular",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Angular sets an ng-version attribute on the root component element.",
+      "matchers": [
+        {
+          "type": "dom_selector",
+          "selector": "[ng-version]",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Angular root component version attribute."
+        }
+      ],
+      "limitations": ["Only visible in the rendered DOM."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "vue",
+      "version": "1.0.0",
+      "name": "Vue",
+      "subjectType": "framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Vue 3 marks the mount element with data-v-app; scoped styles use data-v-<hash> attributes.",
+      "matchers": [
+        {
+          "type": "dom_selector",
+          "selector": "[data-v-app]",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Vue 3 application mount attribute."
+        },
+        {
+          "type": "js_source",
+          "pattern": "@vue/(runtime-dom|shared)|Vue\\.js v[23]\\.",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Vue runtime identifier in a bundle."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "react",
+      "version": "1.0.0",
+      "name": "React",
+      "subjectType": "library",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "React production bundles carry a '@license React' banner; older apps render data-reactroot.",
+      "matchers": [
+        {
+          "type": "js_source",
+          "pattern": "@license React|react-dom\\.production",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "React license banner or build identifier in a bundle."
+        },
+        {
+          "type": "dom_selector",
+          "selector": "[data-reactroot]",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Legacy React root attribute."
+        }
+      ],
+      "limitations": [
+        "Minifiers configured to drop comments remove the banner.",
+        "React is extremely common and says nothing about who wrote the site."
+      ],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "tailwindcss",
+      "version": "1.0.0",
+      "name": "Tailwind CSS",
+      "subjectType": "css_framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Tailwind's generated CSS defines --tw-* custom properties and usually keeps its license banner.",
+      "matchers": [
+        {
+          "type": "css_source",
+          "pattern": "tailwindcss v\\d",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Tailwind CSS license banner."
+        },
+        {
+          "type": "css_source",
+          "pattern": "--tw-[a-z-]+\\s*:",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Tailwind internal custom property."
+        }
+      ],
+      "limitations": [
+        "Tailwind is popular with AI tools and humans alike; it is not an AI-origin signal."
+      ],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "bootstrap",
+      "version": "1.0.0",
+      "name": "Bootstrap",
+      "subjectType": "css_framework",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Bootstrap CSS keeps a 'Bootstrap vX' banner and defines --bs-* custom properties (v5).",
+      "matchers": [
+        {
+          "type": "css_source",
+          "pattern": "Bootstrap\\s+v\\d",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Bootstrap license banner."
+        },
+        {
+          "type": "css_source",
+          "pattern": "--bs-[a-z-]+\\s*:",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Bootstrap 5 custom property."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "webpack",
+      "version": "1.0.0",
+      "name": "webpack",
+      "subjectType": "build_tool",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "webpack runtimes reference webpackChunk* globals or __webpack_require__.",
+      "matchers": [
+        {
+          "type": "js_source",
+          "pattern": "webpackChunk[A-Za-z0-9_$]*|__webpack_require__",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "webpack runtime identifier."
+        }
+      ],
+      "limitations": ["Identifiers survive minification only partially."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "turbopack",
+      "version": "1.0.0",
+      "name": "Turbopack",
+      "subjectType": "build_tool",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Turbopack runtime chunks reference TURBOPACK globals.",
+      "matchers": [
+        {
+          "type": "js_source",
+          "pattern": "TURBOPACK|__turbopack_",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Turbopack runtime identifier."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "vite",
+      "version": "1.0.0",
+      "name": "Vite",
+      "subjectType": "build_tool",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Vite production builds inject a __vitePreload helper and emit hashed files under /assets/.",
+      "matchers": [
+        {
+          "type": "js_source",
+          "pattern": "__vitePreload|vite/modulepreload-polyfill",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Vite preload helper in a bundle."
+        },
+        {
+          "type": "script_url",
+          "pattern": "/@vite/client",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Vite dev-server client (site is served from a dev server)."
+        },
+        {
+          "type": "script_url",
+          "pattern": "/assets/index-[A-Za-z0-9_-]{8}\\.js$",
+          "strength": "weak",
+          "kind": "indirect",
+          "explanation": "File name pattern matching Vite's default output naming."
+        }
+      ],
+      "limitations": [
+        "Vite is a generic build tool used by human-written and AI-generated projects alike."
+      ],
+      "falsePositiveConsiderations": [
+        "Other bundlers can be configured to produce similar file names."
+      ]
+    },
+    {
+      "id": "vercel",
+      "version": "1.0.0",
+      "name": "Vercel",
+      "subjectType": "hosting",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Responses served by Vercel include an x-vercel-id header.",
+      "matchers": [
+        {
+          "type": "header",
+          "name": "x-vercel-id",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Vercel request id header."
+        },
+        {
+          "type": "hostname",
+          "pattern": "\\.vercel\\.app$",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Vercel deployment domain."
+        }
+      ],
+      "limitations": ["Hosting provider says nothing about authorship."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "netlify",
+      "version": "1.0.0",
+      "name": "Netlify",
+      "subjectType": "hosting",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Netlify responses carry x-nf-request-id and 'server: Netlify'.",
+      "matchers": [
+        {
+          "type": "header",
+          "name": "x-nf-request-id",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Netlify request id header."
+        },
+        {
+          "type": "header",
+          "name": "server",
+          "pattern": "^Netlify",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Netlify server header."
+        },
+        {
+          "type": "hostname",
+          "pattern": "\\.netlify\\.app$",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Netlify deployment domain."
+        }
+      ],
+      "limitations": ["Hosting provider says nothing about authorship."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "github-pages",
+      "version": "1.0.0",
+      "name": "GitHub Pages",
+      "subjectType": "hosting",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "GitHub Pages responds with 'server: GitHub.com' and serves *.github.io domains.",
+      "matchers": [
+        {
+          "type": "header",
+          "name": "server",
+          "pattern": "^GitHub\\.com$",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "GitHub Pages server header."
+        },
+        {
+          "type": "hostname",
+          "pattern": "\\.github\\.io$",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "GitHub Pages domain."
+        }
+      ],
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "cloudflare",
+      "version": "1.0.0",
+      "name": "Cloudflare",
+      "subjectType": "cdn",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Traffic proxied by Cloudflare carries a cf-ray header.",
+      "matchers": [
+        {
+          "type": "header",
+          "name": "cf-ray",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Cloudflare ray id header."
+        }
+      ],
+      "limitations": ["A CDN in front of a site says nothing about how the site was built."],
+      "falsePositiveConsiderations": []
+    }
+  ]
+}

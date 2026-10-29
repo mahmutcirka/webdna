@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+data
+coverage
+fixtures/**/*.html
+apps/web/src/sample/sample-report.json
+package-lock.json
+docs/evaluation-results.md

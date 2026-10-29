@@ -1,0 +1,34 @@
+name: Detector regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/detectors/**"
+      - "fixtures/**"
+      - "scripts/evaluate-detectors.ts"
+  pull_request:
+    paths:
+      - "packages/detectors/**"
+      - "fixtures/**"
+      - "scripts/evaluate-detectors.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  detectors:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Detector unit and false-positive regression tests
+        run: npm run test:detectors
+      - name: Synthetic evaluation (fails if any case changes category)
+        run: npm run eval

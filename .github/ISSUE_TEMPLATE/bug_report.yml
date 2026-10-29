@@ -1,0 +1,29 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the scan error code and message if a scan failed.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Prefer a synthetic page or a public URL you are comfortable sharing. Do not paste private data.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: WebDNA version / commit
+  - type: input
+    id: env
+    attributes:
+      label: OS and Node.js version
+  - type: markdown
+    attributes:
+      value: "Security issues: please use private vulnerability reporting instead (see SECURITY.md)."

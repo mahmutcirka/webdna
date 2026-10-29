@@ -1,0 +1,29 @@
+name: Incorrect detector finding
+description: A platform, AI-related or template finding that looks wrong
+labels: [detector, false-positive]
+body:
+  - type: input
+    id: detector
+    attributes:
+      label: Detector id and version
+      description: Shown in the evidence inspector, e.g. sig.platforms.wordpress@1.0.0
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence shown by WebDNA
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it wrong?
+      description: Please describe verifiable facts. Do not share private information about site owners.
+    validations:
+      required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Minimal synthetic HTML that reproduces it (optional)
+      render: html
