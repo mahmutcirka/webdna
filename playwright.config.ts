@@ -56,7 +56,11 @@ export default defineConfig({
       url: `http://127.0.0.1:${WEB_PORT}/`,
       reuseExistingServer: false,
       timeout: 180_000,
-      env: { WEBDNA_API_URL: `http://127.0.0.1:${API_PORT}`, NEXT_TELEMETRY_DISABLED: "1" },
+      env: {
+        WEBDNA_API_URL: `http://127.0.0.1:${API_PORT}`,
+        NEXT_TELEMETRY_DISABLED: "1",
+        WEBDNA_NEXT_DIST_DIR: ".next-e2e",
+      },
     },
   ],
 });

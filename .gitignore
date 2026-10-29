@@ -26,3 +26,4 @@ Thumbs.db
 
 # Local tool configuration
 .claude/
+.next-e2e/

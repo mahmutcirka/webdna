@@ -41,34 +41,34 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="min-h-screen">
         <header className="sticky top-0 z-30 border-b border-border bg-bg/90 backdrop-blur">
-          <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4 sm:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold text-text">
+          <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
+            <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold text-text">
               <span className="text-accent">
                 <Logo />
               </span>
               WebDNA
             </Link>
-            <nav className="flex items-center gap-1 text-sm">
+            <nav className="flex min-w-0 items-center gap-0.5 overflow-x-auto text-sm sm:gap-1">
               <Link
                 href="/dashboard"
-                className="rounded-md px-2.5 py-1.5 text-muted hover:bg-surface-2 hover:text-text"
+                className="shrink-0 rounded-md px-2 py-1.5 text-muted hover:bg-surface-2 hover:text-text sm:px-2.5"
               >
                 Dashboard
               </Link>
               <Link
                 href="/compare"
-                className="rounded-md px-2.5 py-1.5 text-muted hover:bg-surface-2 hover:text-text"
+                className="shrink-0 rounded-md px-2 py-1.5 text-muted hover:bg-surface-2 hover:text-text sm:px-2.5"
               >
                 Compare
               </Link>
               <Link
                 href="/detectors"
-                className="hidden rounded-md px-2.5 py-1.5 text-muted hover:bg-surface-2 hover:text-text sm:inline-block"
+                className="hidden shrink-0 rounded-md px-2.5 py-1.5 text-muted hover:bg-surface-2 hover:text-text sm:inline-block"
               >
                 Detectors
               </Link>
             </nav>
-            <div className="ml-auto">
+            <div className="ml-auto shrink-0">
               <ThemeToggle />
             </div>
           </div>

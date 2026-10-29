@@ -131,23 +131,56 @@ test("exports contain the analysed data", async ({ page }) => {
   expect(download.suggestedFilename()).toMatch(/^webdna-127\.0\.0\.1-[0-9a-f]{8}\.json$/);
 });
 
-test("no horizontal overflow at 375 px on any page or report tab", async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 812 });
-  const overflow = () =>
-    page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  for (const path of ["/", "/dashboard", "/compare", "/detectors", "/sample"]) {
-    await page.goto(path);
-    await page.waitForLoadState("networkidle");
-    expect(await overflow(), path).toBeLessThanOrEqual(0);
-  }
-  await page.goto(`/scans/${basicScanId}`);
-  await expect(page.getByRole("heading", { name: "Northwind Studio — Fixture" })).toBeVisible();
-  for (const tab of TABS) {
-    await page.evaluate((t) => (window.location.hash = t), tab);
-    await page.waitForTimeout(250);
-    expect(await overflow(), `tab ${tab}`).toBeLessThanOrEqual(0);
-  }
-});
+// Fonts differ by OS: CI (Linux) failed with 13 px overflow on "/" that Windows did not show.
+// Every check therefore also runs with a deliberately wide font stack.
+for (const font of ["system default", "wide (Verdana / DejaVu Sans)"]) {
+  test(`no horizontal overflow at 375 px on any page or report tab — ${font} font`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    if (font.startsWith("wide")) {
+      await page.addInitScript(() => {
+        const add = () => {
+          const s = document.createElement("style");
+          s.textContent = '*{font-family:Verdana,"DejaVu Sans",sans-serif !important}';
+          document.head.appendChild(s);
+        };
+        if (document.head) add();
+        else document.addEventListener("DOMContentLoaded", add);
+      });
+    }
+    const overflow = () =>
+      page.evaluate(() => {
+        const vw = window.innerWidth;
+        const culprits = [...document.querySelectorAll("body *")]
+          .filter((el) => {
+            const r = el.getBoundingClientRect();
+            if (r.width === 0 || r.right <= vw + 0.5) return false;
+            for (let p = el.parentElement; p; p = p.parentElement) {
+              if (getComputedStyle(p).overflowX !== "visible") return false;
+            }
+            return true;
+          })
+          .slice(0, 3)
+          .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 50)}`);
+        return { px: document.documentElement.scrollWidth - vw, culprits };
+      });
+    for (const path of ["/", "/dashboard", "/compare", "/detectors", "/sample"]) {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      const o = await overflow();
+      expect(o.px, `${path} ${o.culprits.join(", ")}`).toBeLessThanOrEqual(0);
+    }
+    await page.goto(`/scans/${basicScanId}`);
+    await expect(page.getByRole("heading", { name: "Northwind Studio — Fixture" })).toBeVisible();
+    for (const tab of TABS) {
+      await page.evaluate((t) => (window.location.hash = t), tab);
+      await page.waitForTimeout(250);
+      const o = await overflow();
+      expect(o.px, `tab ${tab} ${o.culprits.join(", ")}`).toBeLessThanOrEqual(0);
+    }
+  });
+}
 
 test("explicit AI-builder markers are reported with evidence, not as an accusation", async ({
   page,
