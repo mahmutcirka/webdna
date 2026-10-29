@@ -1,0 +1,189 @@
+{
+  "signatureSet": "ai-builders",
+  "version": "2026.10.0",
+  "description": "Fingerprints of platforms whose primary workflow is AI-assisted site or app generation, and explicit AI-tool generator markers. A match identifies the platform (question A) and, through aiAssociation, produces a separate AI-related finding (question B) whose strength never exceeds the platform evidence.",
+  "signatures": [
+    {
+      "id": "lovable",
+      "version": "1.0.0",
+      "name": "Lovable (formerly GPT Engineer)",
+      "subjectType": "ai_builder",
+      "status": "active",
+      "provenance": {
+        "type": "public-knowledge",
+        "reference": "Public Lovable-generated index.html files (e.g. on Hugging Face Spaces) contain <script src=\"https://cdn.gpteng.co/gptengineer.js\" type=\"module\"> with a 'DO NOT REMOVE' comment. lovable.app is Lovable's hosting domain.",
+        "lastReviewed": "2026-10-29"
+      },
+      "description": "Lovable projects historically include the gptengineer.js editor script and are published on *.lovable.app.",
+      "matchers": [
+        {
+          "type": "script_url",
+          "pattern": "^https?://cdn\\.gpteng\\.co/gptengineer\\.js",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "The Lovable / GPT Engineer editor script is referenced by the page."
+        },
+        {
+          "type": "hostname",
+          "pattern": "(^|\\.)lovable\\.app$",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "The site is served from Lovable's hosting domain."
+        },
+        {
+          "type": "hostname",
+          "pattern": "(^|\\.)lovableproject\\.com$",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "The site is served from Lovable's preview domain."
+        },
+        {
+          "type": "html_comment",
+          "pattern": "DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Comment that accompanies the GPT Engineer script in Lovable templates."
+        },
+        {
+          "type": "meta",
+          "name": "author",
+          "pattern": "^Lovable$",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Default author meta value left from a Lovable template."
+        },
+        {
+          "type": "meta",
+          "property": "og:image",
+          "pattern": "^https?://lovable\\.dev/",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Default Open Graph image pointing to lovable.dev."
+        }
+      ],
+      "aiAssociation": {
+        "maxStrength": "strong",
+        "rationale": "Lovable is a platform where applications are primarily created by prompting an AI agent.",
+        "alternativeExplanations": [
+          "The project may have been created in Lovable but substantially rewritten by hand.",
+          "Code written elsewhere can be imported into Lovable and published there.",
+          "The marker may remain in the HTML after the project left Lovable."
+        ]
+      },
+      "limitations": ["Markers are trivially removable; their absence says nothing."],
+      "falsePositiveConsiderations": [
+        "Pages that merely link to or mention Lovable do not match: matchers inspect script sources, hostnames, comments and meta tags only."
+      ]
+    },
+    {
+      "id": "v0",
+      "version": "1.0.0",
+      "name": "v0 by Vercel",
+      "subjectType": "ai_builder",
+      "status": "experimental",
+      "provenance": {
+        "type": "community-reported",
+        "reference": "Reported as default metadata in v0-generated Next.js layouts; not reproduced by a maintainer (a public v0 layout checked on 2026-10-29 did not contain it).",
+        "lastReviewed": "2026-10-29"
+      },
+      "description": "Some v0-generated Next.js projects keep a generator metadata value naming v0.",
+      "matchers": [
+        {
+          "type": "meta",
+          "name": "generator",
+          "pattern": "^v0(\\.dev|\\.app)?\\b",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "Generator meta tag naming v0."
+        }
+      ],
+      "aiAssociation": {
+        "maxStrength": "strong",
+        "rationale": "v0 is an AI UI/app generator.",
+        "alternativeExplanations": [
+          "A developer may have started from v0 output and rewritten it.",
+          "Anyone can set any generator value."
+        ]
+      },
+      "limitations": ["Signature not reproduced; strength capped at weak while experimental."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "base44",
+      "version": "1.0.0",
+      "name": "Base44",
+      "subjectType": "ai_builder",
+      "status": "experimental",
+      "provenance": { "type": "community-reported", "lastReviewed": "2026-10-29" },
+      "description": "Base44 apps are reported to be published on *.base44.app.",
+      "matchers": [
+        {
+          "type": "hostname",
+          "pattern": "(^|\\.)base44\\.app$",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "The site is served from a domain reported as Base44's app hosting domain."
+        }
+      ],
+      "aiAssociation": {
+        "maxStrength": "moderate",
+        "rationale": "Base44 is marketed as an AI app builder.",
+        "alternativeExplanations": ["Domain ownership/usage not independently verified."]
+      },
+      "limitations": ["Signature not reproduced; strength capped at weak while experimental."],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "replit",
+      "version": "1.0.0",
+      "name": "Replit",
+      "subjectType": "hosting",
+      "status": "active",
+      "provenance": { "type": "public-knowledge", "lastReviewed": "2026-10-29" },
+      "description": "Replit deployments are served from *.replit.app (and legacy *.repl.co).",
+      "matchers": [
+        {
+          "type": "hostname",
+          "pattern": "(^|\\.)(replit\\.app|repl\\.co)$",
+          "strength": "strong",
+          "kind": "direct",
+          "explanation": "The site is served from Replit's deployment domain."
+        }
+      ],
+      "aiAssociation": {
+        "maxStrength": "weak",
+        "rationale": "Replit offers an AI agent for building apps, but it also hosts many hand-written projects.",
+        "alternativeExplanations": [
+          "Most Replit-hosted code may be written manually; hosting alone is a weak indicator."
+        ]
+      },
+      "limitations": [],
+      "falsePositiveConsiderations": []
+    },
+    {
+      "id": "lovable-badge",
+      "version": "1.0.0",
+      "name": "\"Edit with Lovable\" badge",
+      "subjectType": "ai_builder",
+      "status": "experimental",
+      "provenance": { "type": "community-reported", "lastReviewed": "2026-10-29" },
+      "description": "Free-plan Lovable sites are reported to show an 'Edit with Lovable' badge element.",
+      "matchers": [
+        {
+          "type": "dom_selector",
+          "selector": "#lovable-badge",
+          "strength": "moderate",
+          "kind": "direct",
+          "explanation": "Element with the reported Lovable badge id."
+        }
+      ],
+      "aiAssociation": {
+        "maxStrength": "moderate",
+        "rationale": "The badge would indicate a Lovable-published project.",
+        "alternativeExplanations": ["Any page can use this element id."]
+      },
+      "limitations": ["Selector not reproduced; capped at weak while experimental."],
+      "falsePositiveConsiderations": []
+    }
+  ]
+}
