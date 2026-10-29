@@ -1,0 +1,9 @@
+WebDNA
+Copyright 2026 The WebDNA contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party software used by WebDNA is listed in THIRD_PARTY_NOTICES.md.
+WebDNA does not bundle third-party fonts, images or website content. The sample
+report and its screenshots were generated from synthetic fixtures written for
+this repository (fixtures/sites) and are covered by the same license.
