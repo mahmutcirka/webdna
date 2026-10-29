@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Northwind Studio — Fixture</title>
+  <meta name="description" content="Synthetic WebDNA fixture: a hand-written landing page with no generator markers.">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="/favicon.svg">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">Northwind</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/work">Work</a>
+      <a href="/services">Services</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="mobile-menu">Menu</button>
+  </header>
+  <main>
+    <section class="hero">
+      <h1>Furniture designed in small batches</h1>
+      <p class="lead">We build solid-wood tables and chairs in our workshop in Leeds.</p>
+      <div class="actions">
+        <a class="button button--primary" href="/shop">Browse the shop</a>
+        <a class="button button--ghost" href="/process">Our process</a>
+      </div>
+    </section>
+    <section class="features">
+      <h2>Why customers choose us</h2>
+      <div class="card-grid">
+        <article class="card"><h3>Local timber</h3><p>Ash and oak from forests within 80 miles of the workshop.</p><span class="badge">New</span></article>
+        <article class="card"><h3>Repairable</h3><p>Every joint can be taken apart and re-glued by hand.</p></article>
+        <article class="card"><h3>Ten-year warranty</h3><p>If something breaks, we fix it for free.</p></article>
+      </div>
+    </section>
+    <section class="gallery">
+      <h2>Recent pieces</h2>
+      <div class="frame"><img src="/table.svg" width="600" height="300"></div>
+    </section>
+    <section class="signup">
+      <h2>Workshop newsletter</h2>
+      <form action="/subscribe" method="post">
+        <input type="email" name="email" placeholder="Email address">
+        <button type="submit" class="button button--primary">Subscribe</button>
+      </form>
+      <p class="fineprint">One email a month. Unsubscribe any time.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><p>© Northwind Studio (fixture)</p></footer>
+</body>
+</html>
