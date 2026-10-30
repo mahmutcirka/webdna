@@ -8,7 +8,7 @@ export function cx(...parts: (string | false | null | undefined)[]): string {
 export function Card({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
-      className={cx("min-w-0 rounded-lg border border-border bg-surface", className)}
+      className={cx("min-w-0 rounded-[3px] border border-border bg-surface", className)}
       {...props}
     />
   );
@@ -26,7 +26,13 @@ export function CardHeader({
   return (
     <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold text-text">{title}</h3>
+        <h3 className="flex items-baseline gap-2 text-[15px] font-semibold tracking-tight text-text">
+          <span
+            aria-hidden="true"
+            className="inline-block size-1.5 shrink-0 translate-y-[-2px] bg-accent"
+          />
+          <span className="min-w-0">{title}</span>
+        </h3>
         {description && <p className="mt-1 text-sm text-muted">{description}</p>}
       </div>
       {action}
@@ -37,7 +43,7 @@ export function CardHeader({
 type Tone = "neutral" | "accent" | "info" | "warn" | "danger" | "outline";
 const TONES: Record<Tone, string> = {
   neutral: "bg-surface-2 text-muted border-border",
-  accent: "bg-accent-soft text-accent border-transparent",
+  accent: "bg-mark text-mark-ink border-transparent",
   info: "bg-info-soft text-info border-transparent",
   warn: "bg-warn-soft text-warn border-transparent",
   danger: "bg-danger-soft text-danger border-transparent",
@@ -59,7 +65,7 @@ export function Badge({
     <span
       title={title}
       className={cx(
-        "inline-flex items-center gap-1 whitespace-nowrap rounded border px-1.5 py-0.5 text-xs font-medium",
+        "inline-flex max-w-full items-center gap-1 rounded-[2px] border px-1.5 py-px font-mono text-[11px] font-medium uppercase tracking-wide",
         TONES[tone],
         className,
       )}
@@ -120,15 +126,15 @@ export function Button({
   ...props
 }: ComponentProps<"button"> & { variant?: "primary" | "secondary" | "ghost" | "danger" }) {
   const styles = {
-    primary: "bg-accent text-accent-ink hover:opacity-90",
-    secondary: "border border-border-strong bg-surface-2 text-text hover:bg-surface",
+    primary: "bg-text text-bg hover:bg-accent hover:text-accent-ink",
+    secondary: "border border-border-strong bg-transparent text-text hover:bg-surface-2",
     ghost: "text-muted hover:text-text hover:bg-surface-2",
     danger: "border border-border-strong text-danger hover:bg-danger-soft",
   }[variant];
   return (
     <button
       className={cx(
-        "inline-flex h-9 items-center justify-center gap-2 rounded-md px-3.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex h-9 items-center justify-center gap-2 rounded-[3px] px-3.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
         styles,
         className,
       )}
@@ -144,12 +150,12 @@ export function LinkButton({
 }: ComponentProps<"a"> & { variant?: "primary" | "secondary" }) {
   const styles =
     variant === "primary"
-      ? "bg-accent text-accent-ink hover:opacity-90"
-      : "border border-border-strong bg-surface-2 text-text hover:bg-surface";
+      ? "bg-text text-bg hover:bg-accent hover:text-accent-ink"
+      : "border border-border-strong bg-transparent text-text hover:bg-surface-2";
   return (
     <a
       className={cx(
-        "inline-flex h-9 items-center justify-center gap-2 rounded-md px-3.5 text-sm font-medium transition",
+        "inline-flex h-9 items-center justify-center gap-2 rounded-[3px] px-3.5 text-sm font-medium transition-colors",
         styles,
         className,
       )}
@@ -160,10 +166,10 @@ export function LinkButton({
 
 export function Stat({ label, value, hint }: { label: string; value: ReactNode; hint?: string }) {
   return (
-    <div className="min-w-0 rounded-lg border border-border bg-surface px-4 py-3">
-      <div className="text-xs text-muted">{label}</div>
+    <div className="min-w-0 rounded-[3px] border border-border bg-surface px-4 py-3">
+      <div className="label truncate">{label}</div>
       <div
-        className="mt-1 truncate text-lg font-semibold tabular-nums text-text"
+        className="mt-1.5 truncate font-mono text-xl font-medium tabular-nums tracking-tight text-text"
         title={typeof value === "string" ? value : undefined}
       >
         {value}
@@ -175,7 +181,7 @@ export function Stat({ label, value, hint }: { label: string; value: ReactNode; 
 
 export function Empty({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted">
+    <div className="rounded-[3px] border border-dashed border-border-strong px-4 py-6 text-center font-mono text-xs text-muted">
       {children}
     </div>
   );
@@ -185,7 +191,7 @@ export function Mono({ children, className }: { children: ReactNode; className?:
   return (
     <code
       className={cx(
-        "break-all rounded bg-surface-2 px-1 py-0.5 font-mono text-[12px] text-text",
+        "break-all rounded-[2px] bg-surface-2 px-1 py-0.5 font-mono text-[12px] text-text",
         className,
       )}
     >
@@ -204,12 +210,12 @@ export function Callout({
   children: ReactNode;
 }) {
   const styles = {
-    neutral: "border-border bg-surface-2 text-muted",
-    warn: "border-transparent bg-warn-soft text-warn",
-    info: "border-transparent bg-info-soft text-info",
+    neutral: "border-border-strong bg-surface/70 text-muted",
+    warn: "border-warn bg-warn-soft/70 text-warn",
+    info: "border-info bg-info-soft/70 text-info",
   }[tone];
   return (
-    <div className={cx("flex gap-3 rounded-md border px-4 py-3 text-sm", styles)}>
+    <div className={cx("flex gap-3 border-l-2 px-4 py-3 text-sm leading-relaxed", styles)}>
       {icon && <div className="mt-0.5 shrink-0">{icon}</div>}
       <div className="min-w-0">{children}</div>
     </div>
@@ -221,9 +227,9 @@ export function Table({ head, children }: { head: ReactNode[]; children: ReactNo
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-border text-left text-xs text-muted">
+          <tr className="border-b border-border-strong text-left">
             {head.map((h, i) => (
-              <th key={i} className="px-3 py-2 font-medium">
+              <th key={i} className="label px-3 py-2 !text-muted">
                 {h}
               </th>
             ))}

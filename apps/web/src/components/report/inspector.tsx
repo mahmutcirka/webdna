@@ -150,7 +150,7 @@ export function InspectorDrawer({
         </div>
 
         {f && (
-          <div className="mt-4 space-y-3 rounded-md border border-border bg-surface p-4 text-sm">
+          <div className="mt-4 space-y-3 rounded-[3px] border border-border bg-surface p-4 text-sm">
             <div className="flex flex-wrap gap-2">
               <StrengthBadge
                 strength={f.evidenceStrength}
@@ -203,7 +203,7 @@ export function InspectorDrawer({
         </h3>
         <ul className="mt-2 space-y-3">
           {target.items.map((item, i) => (
-            <li key={i} className="rounded-md border border-border bg-surface p-3 text-sm">
+            <li key={i} className="rounded-[3px] border border-border bg-surface p-3 text-sm">
               <div className="flex flex-wrap items-center gap-2">
                 {item.type && <Badge tone="outline">{item.type}</Badge>}
                 {item.viewport && <Badge>{tEnum("vp", item.viewport)}</Badge>}

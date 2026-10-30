@@ -52,7 +52,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-text">{t("dash.title")}</h1>
+        <h1 className="display text-4xl text-text sm:text-5xl">{t("dash.title")}</h1>
         <p className="mt-1 text-sm text-muted">{t("dash.subtitle")}</p>
       </div>
       <Card className="p-5">

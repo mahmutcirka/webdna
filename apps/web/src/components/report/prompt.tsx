@@ -31,9 +31,9 @@ function Segmented<T extends string>({
             aria-pressed={o === value}
             onClick={() => onChange(o)}
             className={cx(
-              "rounded-md border px-2.5 py-1 text-sm transition",
+              "rounded-[3px] border px-2.5 py-1 text-sm transition",
               o === value
-                ? "border-accent bg-accent-soft font-medium text-text"
+                ? "border-text bg-text font-medium text-bg"
                 : "border-border text-muted hover:text-text",
             )}
           >

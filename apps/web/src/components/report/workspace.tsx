@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { Report } from "@webdna/shared";
 import { useI18n } from "@/i18n/client";
 import { exportUrl } from "@/lib/api";
+import { DnaStrip } from "../dna-strip";
 import { Badge, Callout, cx } from "../ui";
 import { AiOriginSection } from "./ai-origin";
 import { PromptSection } from "./prompt";
@@ -86,17 +87,22 @@ export function ReportWorkspace({
         {t("common.engineEnglish") && <Callout>{t("common.engineEnglish")}</Callout>}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-2xl font-semibold text-text">
-                {report.metadata.title || report.target.domain}
-              </h1>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="label !text-accent">{t("ws.caseFile")}</span>
+              <span aria-hidden="true" className="h-px w-8 bg-border-strong" />
+              <span className="label">
+                {report.scanId.slice(0, 8)} · {report.target.domain}
+              </span>
               {report.sample && <Badge tone="warn">{t("common.exampleData")}</Badge>}
             </div>
+            <h1 className="display mt-3 text-4xl text-text sm:text-5xl">
+              {report.metadata.title || report.target.domain}
+            </h1>
             <a
               href={report.target.finalUrl}
               target="_blank"
               rel="noreferrer noopener"
-              className="mt-1 block truncate font-mono text-xs text-faint hover:text-muted"
+              className="mt-2 block truncate font-mono text-xs text-faint underline-offset-4 hover:text-muted hover:underline"
             >
               {report.target.finalUrl}
             </a>
@@ -110,24 +116,34 @@ export function ReportWorkspace({
             </Link>
           )}
         </div>
+        {report.design.colors.length > 0 && (
+          <DnaStrip colors={report.design.colors} max={32} labels className="h-10" />
+        )}
 
         <nav
-          className="-mx-4 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0"
+          className="sticky top-[66px] z-20 -mx-4 overflow-x-auto border-y border-text bg-bg/95 px-4 backdrop-blur-sm sm:mx-0 sm:px-0"
           aria-label={t("ws.sections")}
         >
-          <div className="flex min-w-max gap-1">
-            {TABS.map((id) => (
+          <div className="flex min-w-max">
+            {TABS.map((id, i) => (
               <button
                 key={id}
                 onClick={() => select(id)}
                 className={cx(
-                  "border-b-2 px-3 py-2 text-sm transition",
-                  tab === id
-                    ? "border-accent font-medium text-text"
-                    : "border-transparent text-muted hover:text-text",
+                  "group flex items-baseline gap-1.5 border-r border-border px-3 py-2.5 text-sm transition-colors last:border-r-0",
+                  tab === id ? "bg-text text-bg" : "text-muted hover:bg-surface-2 hover:text-text",
                 )}
                 aria-current={tab === id ? "page" : undefined}
               >
+                <span
+                  aria-hidden="true"
+                  className={cx(
+                    "font-mono text-[10px]",
+                    tab === id ? "text-bg/60" : "text-faint group-hover:text-accent",
+                  )}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
                 {t(`tab.${id}`)}
               </button>
             ))}

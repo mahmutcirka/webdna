@@ -23,7 +23,7 @@ export default function DetectorsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-text">{t("det.title")}</h1>
+        <h1 className="display text-4xl text-text sm:text-5xl">{t("det.title")}</h1>
         <p className="mt-1 max-w-3xl text-sm text-muted">{t("det.subtitle")}</p>
         {data && (
           <p className="mt-2 text-xs text-faint">

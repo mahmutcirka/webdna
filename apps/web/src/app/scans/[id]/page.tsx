@@ -85,13 +85,15 @@ export default function ScanPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <div>
-        <div className="flex items-center gap-2">
-          <h1 className="truncate text-xl font-semibold text-text">
-            {scan.domain ?? scan.inputUrl}
-          </h1>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="label !text-accent">{t("ws.caseFile")}</span>
+          <span aria-hidden="true" className="h-px w-8 bg-border-strong" />
           <StatusBadge status={scan.status} label={tEnum("status", scan.status)} />
         </div>
-        <p className="mt-1 truncate font-mono text-xs text-faint">
+        <h1 className="display mt-3 truncate text-4xl text-text sm:text-5xl">
+          {scan.domain ?? scan.inputUrl}
+        </h1>
+        <p className="mt-2 truncate font-mono text-xs text-faint">
           {scan.normalizedUrl ?? scan.inputUrl}
         </p>
         <p className="mt-1 text-xs text-muted">
@@ -117,7 +119,7 @@ export default function ScanPage() {
             ) : undefined
           }
         />
-        <div className="p-3">
+        <div className="pt-3">
           <StageList stages={scan.stages} />
         </div>
       </Card>

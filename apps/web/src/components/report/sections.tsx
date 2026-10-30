@@ -223,7 +223,7 @@ export function DesignSection({ report }: { report: Report }) {
           {d.colors.map((c) => (
             <button
               key={c.hex}
-              className="group overflow-hidden rounded-md border border-border text-left hover:border-border-strong"
+              className="group overflow-hidden rounded-[3px] border border-border text-left hover:border-border-strong"
               onClick={() =>
                 inspect({
                   title: t("ds.colorTitle", { hex: c.hex }),
@@ -612,7 +612,7 @@ export function ResponsiveSection({ report, shots }: { report: Report; shots: Sc
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-3">
         {report.viewports.map((v) => (
-          <figure key={v.id} className="rounded-lg border border-border bg-surface p-2">
+          <figure key={v.id} className="rounded-[3px] border border-border bg-surface p-2">
             <img
               src={shots.url(v.screenshots.viewport)}
               alt={t("insp.screenshotAlt", { vp: tEnum("vp", v.id) })}

@@ -6,9 +6,9 @@ import { useI18n } from "@/i18n/client";
 
 export function ThemeToggle() {
   const { t } = useI18n();
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("light");
   useEffect(() => {
-    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+    setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
   }, []);
   const toggle = () => {
     const next = theme === "dark" ? "light" : "dark";
@@ -23,7 +23,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-text"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-[3px] border border-border text-muted hover:border-border-strong hover:text-text"
       aria-label={theme === "dark" ? t("theme.toLight") : t("theme.toDark")}
       title={t("theme.toggle")}
     >

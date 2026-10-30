@@ -111,7 +111,7 @@ function CompareInner() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-text">{t("cmp.title")}</h1>
+        <h1 className="display text-4xl text-text sm:text-5xl">{t("cmp.title")}</h1>
         <p className="mt-1 text-sm text-muted">{t("cmp.subtitle")}</p>
       </div>
       <Card className="grid gap-4 p-5 md:grid-cols-2">
@@ -124,7 +124,7 @@ function CompareInner() {
             <select
               value={value as string}
               onChange={(e) => (set as (v: string) => void)(e.target.value)}
-              className="mt-1 h-10 w-full rounded-md border border-border-strong bg-surface px-2 text-sm text-text"
+              className="mt-1 h-10 w-full rounded-[3px] border border-border-strong bg-surface px-2 text-sm text-text"
             >
               <option value="">{t("cmp.select")}</option>
               {scans.map(option)}

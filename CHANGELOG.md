@@ -20,6 +20,10 @@ All notable changes to this project are documented here. The format follows [Kee
 - Path-only platform signatures only match same-site resources.
 - Dev UI hydrates when opened via `127.0.0.1`; locale-dependent formatting no longer causes hydration errors.
 
+### Changed
+
+- New visual identity ("specimen sheet"): paper-and-ink light theme by default with a dark "darkroom" theme, Instrument Serif / IBM Plex Sans / IBM Plex Mono self-hosted via Fontsource (no runtime font requests), a colour-usage "DNA barcode" on the landing page and report header, a numbered sticky report tab bar, a segmented stage meter on the progress view, and squared, hairline components. README screenshots updated.
+
 ### Added
 
 - **AI rebuild prompt** (new report tab and `prompt` export): a deterministic build brief for AI coding tools, generated from measurements only. It covers a measured design-character summary, colour/typography/spacing tokens (`:root` or Tailwind v4 `@theme`), a section-by-section page blueprint, component specs, responsive changes, accessibility requirements and an acceptance checklist, for HTML, React + Tailwind or Next.js + Tailwind, in English or Turkish. Originality guardrails require a placeholder brand and fresh copy; the site's name, domain, text and images are never included.

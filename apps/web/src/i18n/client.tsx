@@ -76,7 +76,7 @@ export function LanguageSwitcher() {
     <div
       role="group"
       aria-label={t("lang.label")}
-      className="inline-flex h-8 items-center rounded-md border border-border p-0.5 text-xs"
+      className="inline-flex h-8 items-center rounded-[3px] border border-border p-0.5 font-mono text-[11px]"
     >
       {LOCALES.map((l) => (
         <button
@@ -89,8 +89,8 @@ export function LanguageSwitcher() {
           title={LOCALE_NAMES[l]}
           className={
             l === locale
-              ? "rounded bg-surface-2 px-1.5 py-0.5 font-semibold text-text"
-              : "rounded px-1.5 py-0.5 text-muted hover:text-text"
+              ? "rounded-[2px] bg-text px-1.5 py-0.5 font-semibold text-bg"
+              : "rounded-[2px] px-1.5 py-0.5 text-muted hover:text-text"
           }
         >
           {l.toUpperCase()}
