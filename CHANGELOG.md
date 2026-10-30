@@ -22,6 +22,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Turkish interface (EN/TR switcher in the header). The language is chosen from a saved cookie or the browser's Accept-Language and rendered on the server; analysis-engine text (finding explanations, warnings) remains English and is labelled as such.
 - Playwright end-to-end suite (`npm run test:e2e`) and CI job; SSRF canary and hostile-runtime integration tests.
 - `WEBDNA_OFFLINE_DNS` for offline testing.
 

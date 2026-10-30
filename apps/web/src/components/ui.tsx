@@ -69,7 +69,16 @@ export function Badge({
   );
 }
 
-export function StrengthBadge({ strength }: { strength: EvidenceStrength }) {
+export function StrengthBadge({
+  strength,
+  label,
+  title,
+}: {
+  strength: EvidenceStrength;
+  /** Localised strength name. */
+  label: string;
+  title: string;
+}) {
   const tone: Tone =
     strength === "strong"
       ? "accent"
@@ -79,13 +88,13 @@ export function StrengthBadge({ strength }: { strength: EvidenceStrength }) {
           ? "neutral"
           : "outline";
   return (
-    <Badge tone={tone} title="Evidence strength (heuristic category, not a probability)">
-      {strength}
+    <Badge tone={tone} title={title}>
+      {label}
     </Badge>
   );
 }
 
-export function StatusBadge({ status }: { status: ScanStatus }) {
+export function StatusBadge({ status, label }: { status: ScanStatus; label: string }) {
   const tone: Tone =
     status === "completed"
       ? "accent"
@@ -94,7 +103,7 @@ export function StatusBadge({ status }: { status: ScanStatus }) {
         : status === "running"
           ? "info"
           : "neutral";
-  return <Badge tone={tone}>{status}</Badge>;
+  return <Badge tone={tone}>{label}</Badge>;
 }
 
 /** Neutral styling on purpose: an AI-related finding is information, not an accusation. */

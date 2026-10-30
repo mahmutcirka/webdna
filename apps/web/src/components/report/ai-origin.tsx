@@ -14,17 +14,23 @@ import {
   Td,
   conclusionTone,
 } from "../ui";
+import { useI18n } from "@/i18n/client";
 import { fromEvidenceRefs, useInspect } from "./inspector";
 
 function FindingRow({ f }: { f: Finding }) {
   const inspect = useInspect();
+  const { t, tEnum } = useI18n();
   return (
     <li className="px-5 py-4">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium text-text">{f.finding}</span>
-        <StrengthBadge strength={f.evidenceStrength} />
-        <Badge tone="outline">{f.evidenceKind}</Badge>
-        {f.experimental && <Badge tone="warn">experimental</Badge>}
+        <StrengthBadge
+          strength={f.evidenceStrength}
+          label={tEnum("strength", f.evidenceStrength)}
+          title={t("strength.title")}
+        />
+        <Badge tone="outline">{tEnum("kind", f.evidenceKind)}</Badge>
+        {f.experimental && <Badge tone="warn">{t("ai.experimental")}</Badge>}
       </div>
       <p className="mt-1.5 text-sm text-muted">{f.explanation}</p>
       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-faint">
@@ -44,7 +50,7 @@ function FindingRow({ f }: { f: Finding }) {
             })
           }
         >
-          <Search size={12} /> Inspect evidence
+          <Search size={12} /> {t("ai.inspect")}
         </button>
       </div>
     </li>
@@ -68,6 +74,7 @@ function FindingList({ findings, empty }: { findings: Finding[]; empty: string }
 }
 
 export function AiOriginSection({ report }: { report: Report }) {
+  const { t, tEnum, formatNumber } = useI18n();
   const ai = report.aiOrigin;
   const cov = ai.coverage;
   return (
@@ -75,12 +82,10 @@ export function AiOriginSection({ report }: { report: Report }) {
       <Card className="p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="text-xs uppercase tracking-wide text-faint">
-              Overall evidence category
-            </div>
+            <div className="text-xs uppercase tracking-wide text-faint">{t("ai.overall")}</div>
             <div className="mt-2 flex items-center gap-2">
               <Badge tone={conclusionTone(ai.conclusion)} className="px-2 py-1 text-sm">
-                {ai.conclusionLabel}
+                {tEnum("conclusion", ai.conclusion)}
               </Badge>
             </div>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
@@ -89,21 +94,21 @@ export function AiOriginSection({ report }: { report: Report }) {
               ))}
             </ul>
           </div>
-          <div className="shrink-0 text-xs text-faint sm:text-right">
-            Rule set
+          <div className="min-w-0 text-xs text-faint sm:max-w-[45%] sm:text-right">
+            {t("common.ruleSet")}
             <div className="mt-1">
               <Mono>{ai.ruleSetVersion}</Mono>
             </div>
           </div>
         </div>
         <div className="mt-4">
-          <Callout icon={<Info size={15} />}>{ai.disclaimer}</Callout>
+          <Callout icon={<Info size={15} />}>{t("ai.disclaimer")}</Callout>
         </div>
       </Card>
 
       {ai.conflicts.length > 0 && (
         <Callout tone="warn" icon={<Info size={15} />}>
-          <div className="font-medium">Conflicting evidence</div>
+          <div className="font-medium">{t("ai.conflicts")}</div>
           <ul className="mt-1 list-disc pl-4">
             {ai.conflicts.map((c) => (
               <li key={c}>{c}</li>
@@ -117,26 +122,26 @@ export function AiOriginSection({ report }: { report: Report }) {
           <CardHeader
             title={
               <span className="inline-flex items-center gap-2">
-                <Layers size={15} className="text-muted" /> A. Website platform identified
+                <Layers size={15} className="text-muted" /> {t("ai.a.title")}
               </span>
             }
-            description="CMS, framework, website-builder, hosting and build-tool fingerprints. Platform identification is not evidence of AI use."
+            description={t("ai.a.desc")}
           />
           {ai.platformIdentification.platforms.length === 0 ? (
             <div className="p-5">
-              <Empty>No platform could be identified from the available evidence.</Empty>
+              <Empty>{t("ai.a.none")}</Empty>
             </div>
           ) : (
             <div className="flex flex-wrap gap-2 px-5 pt-4">
               {ai.platformIdentification.platforms.map((p) => (
                 <Badge key={p.name} tone={p.type === "ai_builder" ? "info" : "neutral"}>
-                  {p.name} · {p.type.replace("_", " ")} · {p.strength}
+                  {p.name} · {tEnum("subject", p.type)} · {tEnum("strength", p.strength)}
                 </Badge>
               ))}
             </div>
           )}
           {ai.platformFindings.length > 0 && (
-            <FindingList findings={ai.platformFindings} empty="No platform findings." />
+            <FindingList findings={ai.platformFindings} empty={t("ai.a.noFindings")} />
           )}
         </Card>
 
@@ -144,61 +149,57 @@ export function AiOriginSection({ report }: { report: Report }) {
           <CardHeader
             title={
               <span className="inline-flex items-center gap-2">
-                <Sparkles size={15} className="text-muted" /> B. Evidence potentially associated
-                with AI-assisted generation
+                <Sparkles size={15} className="text-muted" /> {t("ai.b.title")}
               </span>
             }
-            description="Explicit AI-builder markers and self-declared generator claims. Never inferred from visual style."
+            description={t("ai.b.desc")}
           />
           <FindingList
             findings={ai.aiFindings}
             empty={
-              ai.conclusion === "insufficient_evidence"
-                ? "Not enough evidence was available to evaluate this question."
-                : "No AI-related indicators were found. This does not show that no AI tools were used."
+              ai.conclusion === "insufficient_evidence" ? t("ai.b.insufficient") : t("ai.b.none")
             }
           />
         </Card>
       </div>
 
       <Card>
-        <CardHeader
-          title="C. Template and boilerplate signals"
-          description="Unchanged starter content, placeholders and unreplaced variables. Reuse or incomplete customisation is not AI involvement."
-        />
-        <FindingList
-          findings={ai.templateFindings}
-          empty="No template or placeholder signals were found."
-        />
+        <CardHeader title={t("ai.c.title")} description={t("ai.c.desc")} />
+        <FindingList findings={ai.templateFindings} empty={t("ai.c.none")} />
       </Card>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
-          <CardHeader
-            title="Evidence coverage"
-            description="What the detectors could actually look at."
-          />
+          <CardHeader title={t("ai.coverage")} description={t("ai.coverage.desc")} />
           <dl className="grid grid-cols-2 gap-x-4 gap-y-2 px-5 py-4 text-sm">
-            <dt className="text-muted">Original HTML</dt>
-            <dd className="text-text">{cov.htmlInspected ? "inspected" : "unavailable"}</dd>
-            <dt className="text-muted">Rendered DOM</dt>
-            <dd className="text-text">{cov.renderedDomInspected ? "inspected" : "unavailable"}</dd>
-            <dt className="text-muted">Scripts</dt>
+            <dt className="text-muted">{t("ai.cov.html")}</dt>
+            <dd className="text-text">
+              {cov.htmlInspected ? t("common.inspected") : t("common.unavailable")}
+            </dd>
+            <dt className="text-muted">{t("ai.cov.dom")}</dt>
+            <dd className="text-text">
+              {cov.renderedDomInspected ? t("common.inspected") : t("common.unavailable")}
+            </dd>
+            <dt className="text-muted">{t("ai.cov.scripts")}</dt>
             <dd className="text-text">
               {cov.scriptsInspected} / {cov.scriptsTotal}
             </dd>
-            <dt className="text-muted">Stylesheets</dt>
+            <dt className="text-muted">{t("ai.cov.styles")}</dt>
             <dd className="text-text">
               {cov.stylesheetsInspected} / {cov.stylesheetsTotal}
             </dd>
-            <dt className="text-muted">Visible text sampled</dt>
+            <dt className="text-muted">{t("ai.cov.text")}</dt>
             <dd className="text-text">
-              {cov.visibleTextChars.toLocaleString("en-US")} chars (not stored)
+              {t("ai.cov.textValue", { n: formatNumber(cov.visibleTextChars) })}
             </dd>
-            <dt className="text-muted">Response headers</dt>
-            <dd className="text-text">{cov.headersInspected ? "inspected" : "unavailable"}</dd>
-            <dt className="text-muted">Blocking page suspected</dt>
-            <dd className="text-text">{cov.blockingPageSuspected ? "yes" : "no"}</dd>
+            <dt className="text-muted">{t("ai.cov.headers")}</dt>
+            <dd className="text-text">
+              {cov.headersInspected ? t("common.inspected") : t("common.unavailable")}
+            </dd>
+            <dt className="text-muted">{t("ai.cov.blocking")}</dt>
+            <dd className="text-text">
+              {cov.blockingPageSuspected ? t("common.yes") : t("common.no")}
+            </dd>
           </dl>
           {cov.notes.length > 0 && (
             <ul className="list-disc space-y-1 border-t border-border px-9 py-3 text-xs text-muted">
@@ -209,12 +210,16 @@ export function AiOriginSection({ report }: { report: Report }) {
           )}
         </Card>
         <Card>
-          <CardHeader
-            title="Detectors that ran"
-            description="Versions recorded so later comparisons can tell rule changes from site changes."
-          />
+          <CardHeader title={t("ai.detectorsRan")} description={t("ai.detectorsRan.desc")} />
           <div className="max-h-80 overflow-y-auto">
-            <Table head={["Detector", "Version", "Status", "Findings"]}>
+            <Table
+              head={[
+                t("ai.head.detector"),
+                t("ai.head.version"),
+                t("ai.head.status"),
+                t("ai.head.findings"),
+              ]}
+            >
               {ai.detectors.map((d) => (
                 <tr key={d.id}>
                   <Td>
@@ -223,9 +228,11 @@ export function AiOriginSection({ report }: { report: Report }) {
                   <Td className="tabular-nums">{d.version}</Td>
                   <Td>
                     {d.error ? (
-                      <Badge tone="danger">error</Badge>
+                      <Badge tone="danger">{t("ai.error")}</Badge>
                     ) : (
-                      <Badge tone={d.status === "active" ? "neutral" : "warn"}>{d.status}</Badge>
+                      <Badge tone={d.status === "active" ? "neutral" : "warn"}>
+                        {tEnum("detStatus", d.status)}
+                      </Badge>
                     )}
                   </Td>
                   <Td className="tabular-nums">{d.findingCount}</Td>

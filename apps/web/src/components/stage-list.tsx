@@ -1,9 +1,14 @@
+"use client";
+
 import { Check, Circle, Loader2, MinusCircle, X } from "lucide-react";
 import { STAGES, type StageProgress } from "@webdna/shared";
+import { useI18n } from "@/i18n/client";
+import type { MessageKey } from "@/i18n/messages";
 import { cx } from "./ui";
 
 /** Shows the real backend stage states reported by the worker — no simulated progress. */
 export function StageList({ stages }: { stages: StageProgress[] }) {
+  const { t } = useI18n();
   return (
     <ol className="space-y-1">
       {STAGES.map((def, i) => {
@@ -36,7 +41,7 @@ export function StageList({ stages }: { stages: StageProgress[] }) {
                   state === "pending" || state === "skipped" ? "text-muted" : "text-text",
                 )}
               >
-                {i + 1}. {def.label}
+                {i + 1}. {t(`stage.${def.id}` as MessageKey)}
               </div>
               {s?.message && (
                 <div

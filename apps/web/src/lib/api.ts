@@ -88,7 +88,15 @@ export const exportUrl = (id: string, format: string) =>
 export const screenshotUrl = (id: string, name: string) =>
   `/api/scans/${encodeURIComponent(id)}/screenshots/${name}`;
 
-export function formatDate(iso?: string): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+/**
+ * Server messages are English. For other locales, prefix a translated summary for known
+ * error codes and keep the server's detail so nothing specific is lost.
+ */
+export function localizeError(
+  err: ApiError,
+  i18n: { locale: string; tEnum: (prefix: string, value: string) => string },
+): string {
+  if (i18n.locale === "en") return err.message;
+  const summary = i18n.tEnum("apiError", err.code);
+  return summary === err.code.replace(/_/g, " ") ? err.message : `${summary} (${err.message})`;
 }

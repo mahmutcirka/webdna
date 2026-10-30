@@ -3,7 +3,7 @@
 import { AlertTriangle, RefreshCw, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { AI_CONCLUSION_LABELS, type ScanRecord } from "@webdna/shared";
+import type { ScanRecord } from "@webdna/shared";
 import { UrlForm } from "@/components/url-form";
 import {
   Badge,
@@ -14,9 +14,12 @@ import {
   StatusBadge,
   conclusionTone,
 } from "@/components/ui";
-import { api, ApiError, formatDate } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
+import { api, ApiError, localizeError } from "@/lib/api";
 
 export default function Dashboard() {
+  const i18n = useI18n();
+  const { t, tEnum, formatDate } = i18n;
   const [scans, setScans] = useState<ScanRecord[]>();
   const [error, setError] = useState<string>();
 
@@ -26,9 +29,9 @@ export default function Dashboard() {
       setScans(scans);
       setError(undefined);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Could not load scans.");
+      setError(e instanceof ApiError ? localizeError(e, i18n) : t("dash.loadFailed"));
     }
-  }, []);
+  }, [i18n, t]);
 
   useEffect(() => {
     void load();
@@ -37,47 +40,45 @@ export default function Dashboard() {
   }, [load]);
 
   const remove = async (id: string) => {
-    if (!confirm("Delete this scan, its report and screenshots? This cannot be undone.")) return;
+    if (!confirm(t("dash.deleteConfirm"))) return;
     try {
       await api.deleteScan(id);
       await load();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Delete failed.");
+      setError(e instanceof ApiError ? localizeError(e, i18n) : t("dash.deleteFailed"));
     }
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-text">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted">
-          Scans stored on this WebDNA instance. Nothing here is shared or aggregated.
-        </p>
+        <h1 className="text-2xl font-semibold text-text">{t("dash.title")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("dash.subtitle")}</p>
       </div>
       <Card className="p-5">
-        <h2 className="mb-3 text-sm font-semibold text-text">New analysis</h2>
+        <h2 className="mb-3 text-sm font-semibold text-text">{t("dash.new")}</h2>
         <UrlForm />
       </Card>
       <Card>
         <CardHeader
-          title="Recent scans"
-          description={scans ? `${scans.length} scan(s)` : undefined}
+          title={t("dash.recent")}
+          description={scans ? t("dash.count", { n: scans.length }) : undefined}
           action={
-            <Button variant="ghost" onClick={() => void load()} aria-label="Refresh">
+            <Button variant="ghost" onClick={() => void load()} aria-label={t("dash.refresh")}>
               <RefreshCw size={14} />
             </Button>
           }
         />
         {error && <p className="px-5 py-3 text-sm text-danger">{error}</p>}
-        {!scans && !error && <p className="px-5 py-6 text-sm text-muted">Loading…</p>}
+        {!scans && !error && <p className="px-5 py-6 text-sm text-muted">{t("common.loading")}</p>}
         {scans && scans.length === 0 && (
           <div className="p-5">
             <Empty>
-              No scans yet. Enter a URL above, or explore the{" "}
+              {t("dash.empty.before")}{" "}
               <Link className="text-accent hover:underline" href="/sample">
-                sample report
+                {t("dash.empty.link")}
               </Link>
-              .
+              {t("dash.empty.after")}
             </Empty>
           </div>
         )}
@@ -96,10 +97,10 @@ export default function Dashboard() {
                     >
                       {s.summary?.title || s.domain || s.inputUrl}
                     </Link>
-                    <StatusBadge status={s.status} />
+                    <StatusBadge status={s.status} label={tEnum("status", s.status)} />
                     {s.summary?.aiConclusion && (
                       <Badge tone={conclusionTone(s.summary.aiConclusion)}>
-                        {AI_CONCLUSION_LABELS[s.summary.aiConclusion]}
+                        {tEnum("conclusion", s.summary.aiConclusion)}
                       </Badge>
                     )}
                     {s.warnings.length > 0 && (
@@ -118,7 +119,7 @@ export default function Dashboard() {
                   )}
                   {s.summary?.platforms && s.summary.platforms.length > 0 && (
                     <div className="mt-1 text-xs text-muted">
-                      Platforms: {s.summary.platforms.join(", ")}
+                      {t("dash.platforms")} {s.summary.platforms.join(", ")}
                     </div>
                   )}
                 </div>
@@ -129,7 +130,7 @@ export default function Dashboard() {
                       variant="ghost"
                       className="h-7 px-2"
                       onClick={() => void remove(s.id)}
-                      aria-label="Delete scan"
+                      aria-label={t("dash.deleteScan")}
                     >
                       <Trash2 size={14} />
                     </Button>

@@ -4,6 +4,7 @@ import { GitCompare } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Report } from "@webdna/shared";
+import { useI18n } from "@/i18n/client";
 import { exportUrl } from "@/lib/api";
 import { Badge, Callout, cx } from "../ui";
 import { AiOriginSection } from "./ai-origin";
@@ -27,19 +28,19 @@ import {
 } from "./sections";
 
 const TABS = [
-  ["overview", "Overview"],
-  ["design", "Design system"],
-  ["typography", "Typography"],
-  ["components", "Components"],
-  ["layout", "Layout"],
-  ["responsive", "Responsive"],
-  ["source", "Source analysis"],
-  ["ai", "AI-origin"],
-  ["a11y", "Accessibility"],
-  ["assets", "Assets"],
-  ["export", "Export"],
+  "overview",
+  "design",
+  "typography",
+  "components",
+  "layout",
+  "responsive",
+  "source",
+  "ai",
+  "a11y",
+  "assets",
+  "export",
 ] as const;
-type TabId = (typeof TABS)[number][0];
+type TabId = (typeof TABS)[number];
 
 export function ReportWorkspace({
   report,
@@ -52,6 +53,7 @@ export function ReportWorkspace({
   screenshot: (name: string) => string;
   fullPage?: boolean;
 }) {
+  const { t } = useI18n();
   const [tab, setTab] = useState<TabId>("overview");
   const [inspect, setInspect] = useState<InspectTarget>();
   const shots: ScreenshotSource = { url: screenshot, fullPage };
@@ -59,7 +61,7 @@ export function ReportWorkspace({
   useEffect(() => {
     const sync = () => {
       const fromHash = window.location.hash.slice(1) as TabId;
-      if (TABS.some(([id]) => id === fromHash)) setTab(fromHash);
+      if (TABS.some((id) => id === fromHash)) setTab(fromHash);
     };
     sync();
     window.addEventListener("hashchange", sync);
@@ -78,14 +80,15 @@ export function ReportWorkspace({
   return (
     <InspectContext.Provider value={setInspect}>
       <div className="space-y-6">
-        {report.sample && <Callout tone="warn">{report.sample.label}</Callout>}
+        {report.sample && <Callout tone="warn">{t("sample.label")}</Callout>}
+        {t("common.engineEnglish") && <Callout>{t("common.engineEnglish")}</Callout>}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="truncate text-2xl font-semibold text-text">
                 {report.metadata.title || report.target.domain}
               </h1>
-              {report.sample && <Badge tone="warn">Example data</Badge>}
+              {report.sample && <Badge tone="warn">{t("common.exampleData")}</Badge>}
             </div>
             <a
               href={report.target.finalUrl}
@@ -101,17 +104,17 @@ export function ReportWorkspace({
               href={`/compare?a=${scanId}`}
               className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
             >
-              <GitCompare size={14} /> Compare with another scan
+              <GitCompare size={14} /> {t("ws.compare")}
             </Link>
           )}
         </div>
 
         <nav
           className="-mx-4 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0"
-          aria-label="Report sections"
+          aria-label={t("ws.sections")}
         >
           <div className="flex min-w-max gap-1">
-            {TABS.map(([id, label]) => (
+            {TABS.map((id) => (
               <button
                 key={id}
                 onClick={() => select(id)}
@@ -123,7 +126,7 @@ export function ReportWorkspace({
                 )}
                 aria-current={tab === id ? "page" : undefined}
               >
-                {label}
+                {t(`tab.${id}`)}
               </button>
             ))}
           </div>

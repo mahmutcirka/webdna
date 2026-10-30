@@ -2,42 +2,39 @@
 
 import { useEffect, useState } from "react";
 import { Badge, Callout, Card, Mono } from "@/components/ui";
-import { api, ApiError, type DetectorInfo } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
+import { api, ApiError, localizeError, type DetectorInfo } from "@/lib/api";
 
-const CATEGORY_LABEL: Record<string, string> = {
-  platform: "Platform identification",
-  ai_origin_signal: "AI-related signals",
-  template_signal: "Template & boilerplate",
-};
+const CATEGORIES = ["platform", "ai_origin_signal", "template_signal"] as const;
 
 export default function DetectorsPage() {
+  const i18n = useI18n();
+  const { t, tEnum } = i18n;
   const [data, setData] = useState<{ ruleSetVersion: string; detectors: DetectorInfo[] }>();
   const [error, setError] = useState<string>();
   useEffect(() => {
     api
       .detectors()
       .then(setData)
-      .catch((e) => setError(e instanceof ApiError ? e.message : "Could not load detectors."));
+      .catch((e) => setError(e instanceof ApiError ? localizeError(e, i18n) : t("det.loadFailed")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-text">Detector catalog</h1>
-        <p className="mt-1 max-w-3xl text-sm text-muted">
-          Every rule is versioned and documents what it reads, its strongest possible evidence, its
-          limitations and its provenance. Experimental rules (community-reported, not reproduced)
-          are capped at weak evidence.
-        </p>
+        <h1 className="text-2xl font-semibold text-text">{t("det.title")}</h1>
+        <p className="mt-1 max-w-3xl text-sm text-muted">{t("det.subtitle")}</p>
         {data && (
           <p className="mt-2 text-xs text-faint">
-            Rule set <Mono>{data.ruleSetVersion}</Mono>
+            {t("common.ruleSet")} <Mono>{data.ruleSetVersion}</Mono>
           </p>
         )}
       </div>
       {error && <Callout tone="warn">{error}</Callout>}
       {data &&
-        Object.entries(CATEGORY_LABEL).map(([cat, label]) => {
+        CATEGORIES.map((cat) => {
+          const label = t(`det.cat.${cat}`);
           const list = data.detectors.filter((d) => d.category === cat);
           return (
             <section key={cat}>
@@ -49,8 +46,12 @@ export default function DetectorsPage() {
                   <Card key={d.id} className="p-4 text-sm">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-text">{d.name}</span>
-                      <Badge tone={d.status === "active" ? "neutral" : "warn"}>{d.status}</Badge>
-                      <Badge tone="outline">max {d.maxStrength}</Badge>
+                      <Badge tone={d.status === "active" ? "neutral" : "warn"}>
+                        {tEnum("detStatus", d.status)}
+                      </Badge>
+                      <Badge tone="outline">
+                        {t("det.max", { s: tEnum("strength", d.maxStrength) })}
+                      </Badge>
                     </div>
                     <div className="mt-1">
                       <Mono>
@@ -59,8 +60,11 @@ export default function DetectorsPage() {
                     </div>
                     <p className="mt-2 text-muted">{d.description}</p>
                     <div className="mt-2 text-xs text-faint">
-                      Reads: {d.evidenceRequirements.join(", ")} · Provenance: {d.provenance.type}{" "}
-                      (reviewed {d.provenance.lastReviewed})
+                      {t("det.reads", {
+                        r: d.evidenceRequirements.join(", "),
+                        p: d.provenance.type,
+                        d: d.provenance.lastReviewed,
+                      })}
                     </div>
                     {d.provenance.reference && (
                       <div className="mt-1 break-words text-xs text-faint">

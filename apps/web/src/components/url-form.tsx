@@ -4,14 +4,11 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import type { ViewportId } from "@webdna/shared";
-import { api, ApiError } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
+import { api, ApiError, localizeError } from "@/lib/api";
 import { Button, cx } from "./ui";
 
-const VIEWPORT_OPTIONS: { id: ViewportId; label: string }[] = [
-  { id: "desktop", label: "Desktop 1440" },
-  { id: "tablet", label: "Tablet 768" },
-  { id: "mobile", label: "Mobile 390" },
-];
+const VIEWPORT_OPTIONS: ViewportId[] = ["desktop", "tablet", "mobile"];
 
 export function UrlForm({
   autoFocus = false,
@@ -21,6 +18,8 @@ export function UrlForm({
   compact?: boolean;
 }) {
   const router = useRouter();
+  const i18n = useI18n();
+  const { t } = i18n;
   const [url, setUrl] = useState("");
   const [viewports, setViewports] = useState<ViewportId[]>(["desktop", "tablet", "mobile"]);
   const [error, setError] = useState<string>();
@@ -29,13 +28,13 @@ export function UrlForm({
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError(undefined);
-    if (viewports.length === 0) return setError("Select at least one viewport.");
+    if (viewports.length === 0) return setError(t("form.selectViewport"));
     setBusy(true);
     try {
       const { scan } = await api.createScan(url, viewports);
       router.push(`/scans/${scan.id}`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Could not start the scan.");
+      setError(err instanceof ApiError ? localizeError(err, i18n) : t("form.startFailed"));
       setBusy(false);
     }
   };
@@ -47,7 +46,7 @@ export function UrlForm({
     <form onSubmit={submit} className="w-full">
       <div className={cx("flex flex-col gap-2 sm:flex-row", compact ? "" : "sm:items-stretch")}>
         <label className="sr-only" htmlFor="url-input">
-          Website URL
+          {t("form.urlLabel")}
         </label>
         <input
           id="url-input"
@@ -64,23 +63,23 @@ export function UrlForm({
         />
         <Button type="submit" disabled={busy || url.trim().length === 0} className="h-11 px-5">
           {busy ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
-          Analyze website
+          {t("form.analyze")}
         </Button>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted">
-        <span>Viewports:</span>
+        <span>{t("form.viewports")}</span>
         {VIEWPORT_OPTIONS.map((v) => (
           <label
-            key={v.id}
+            key={v}
             className="inline-flex cursor-pointer items-center gap-1.5 rounded border border-border px-2 py-1 hover:border-border-strong"
           >
             <input
               type="checkbox"
-              checked={viewports.includes(v.id)}
-              onChange={() => toggle(v.id)}
+              checked={viewports.includes(v)}
+              onChange={() => toggle(v)}
               className="accent-[var(--accent)]"
             />
-            {v.label}
+            {t(`form.vp.${v}`)}
           </label>
         ))}
       </div>

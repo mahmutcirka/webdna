@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { createContext, useContext, type ReactNode } from "react";
 import type { ElementRef, EvidenceRef, Finding, Report, ViewportId } from "@webdna/shared";
+import { useI18n } from "@/i18n/client";
 import { Badge, Mono, StrengthBadge } from "../ui";
 
 export interface InspectItem {
@@ -58,6 +59,7 @@ export function ScreenshotHighlight({
   item: InspectItem;
   shots: ScreenshotSource;
 }) {
+  const { t, tEnum } = useI18n();
   const vp = report.viewports.find((v) => v.id === item.viewport);
   if (!vp || !item.rect) return null;
   const full = shots.fullPage && vp.screenshots.fullPage;
@@ -71,9 +73,7 @@ export function ScreenshotHighlight({
   return (
     <div className="mt-2">
       {outside ? (
-        <p className="text-xs text-muted">
-          This element lies below the captured screenshot area ({height}px).
-        </p>
+        <p className="text-xs text-muted">{t("insp.below", { h: height })}</p>
       ) : (
         <div
           className="relative overflow-hidden rounded border border-border bg-surface-2"
@@ -81,7 +81,7 @@ export function ScreenshotHighlight({
         >
           <img
             src={shots.url(name)}
-            alt={`${vp.id} screenshot`}
+            alt={t("insp.screenshotAlt", { vp: tEnum("vp", vp.id) })}
             className="absolute left-0 w-full max-w-none"
             style={{ top: `${(-top / windowH) * 100}%`, height: `${(height / windowH) * 100}%` }}
           />
@@ -99,8 +99,14 @@ export function ScreenshotHighlight({
         </div>
       )}
       <p className="mt-1 text-[11px] text-faint">
-        Measured box {Math.round(r.w)}×{Math.round(r.h)} at ({Math.round(r.x)}, {Math.round(r.y)})
-        in the {vp.id} viewport ({vp.width}px).
+        {t("insp.box", {
+          w: Math.round(r.w),
+          h: Math.round(r.h),
+          x: Math.round(r.x),
+          y: Math.round(r.y),
+          vp: tEnum("vp", vp.id),
+          vw: vp.width,
+        })}
       </p>
     </div>
   );
@@ -117,26 +123,27 @@ export function InspectorDrawer({
   shots: ScreenshotSource;
   onClose: () => void;
 }) {
+  const { t, tEnum } = useI18n();
   if (!target) return null;
   const f = target.finding;
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-black/40" onClick={onClose}>
       <aside
         role="dialog"
-        aria-label="Evidence inspector"
+        aria-label={t("insp.title")}
         className="h-full w-full max-w-xl overflow-y-auto border-l border-border bg-bg p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-xs uppercase tracking-wide text-faint">Evidence inspector</div>
+            <div className="text-xs uppercase tracking-wide text-faint">{t("insp.title")}</div>
             <h2 className="mt-1 text-base font-semibold text-text">{target.title}</h2>
             {target.subtitle && <p className="mt-1 text-sm text-muted">{target.subtitle}</p>}
           </div>
           <button
             onClick={onClose}
             className="rounded p-1 text-muted hover:bg-surface-2 hover:text-text"
-            aria-label="Close"
+            aria-label={t("common.close")}
           >
             <X size={18} />
           </button>
@@ -145,13 +152,17 @@ export function InspectorDrawer({
         {f && (
           <div className="mt-4 space-y-3 rounded-md border border-border bg-surface p-4 text-sm">
             <div className="flex flex-wrap gap-2">
-              <StrengthBadge strength={f.evidenceStrength} />
-              <Badge>{f.evidenceKind} evidence</Badge>
-              {f.experimental && <Badge tone="warn">experimental rule</Badge>}
+              <StrengthBadge
+                strength={f.evidenceStrength}
+                label={tEnum("strength", f.evidenceStrength)}
+                title={t("strength.title")}
+              />
+              <Badge>{t("insp.evidenceKind", { k: tEnum("kind", f.evidenceKind) })}</Badge>
+              {f.experimental && <Badge tone="warn">{t("insp.experimentalRule")}</Badge>}
             </div>
             <p className="text-text">{f.explanation}</p>
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-              <dt className="text-muted">Detector</dt>
+              <dt className="text-muted">{t("insp.detector")}</dt>
               <dd>
                 <Mono>
                   {f.detectorId}@{f.detectorVersion}
@@ -159,7 +170,7 @@ export function InspectorDrawer({
               </dd>
               {f.signatureVersion && (
                 <>
-                  <dt className="text-muted">Signature</dt>
+                  <dt className="text-muted">{t("insp.signature")}</dt>
                   <dd>
                     <Mono>
                       {f.signatureId} ({f.signatureVersion})
@@ -167,18 +178,18 @@ export function InspectorDrawer({
                   </dd>
                 </>
               )}
-              <dt className="text-muted">Source</dt>
+              <dt className="text-muted">{t("insp.source")}</dt>
               <dd className="text-text">{f.source}</dd>
             </dl>
             {f.alternativeExplanations.length > 0 && (
-              <Block title="Alternative explanations">
+              <Block title={t("insp.alternatives")}>
                 {f.alternativeExplanations.map((a) => (
                   <li key={a}>{a}</li>
                 ))}
               </Block>
             )}
             {f.limitations.length > 0 && (
-              <Block title="Limitations">
+              <Block title={t("insp.limitations")}>
                 {f.limitations.map((a) => (
                   <li key={a}>{a}</li>
                 ))}
@@ -188,20 +199,20 @@ export function InspectorDrawer({
         )}
 
         <h3 className="mt-5 text-xs font-semibold uppercase tracking-wide text-faint">
-          Where it was observed ({target.items.length})
+          {t("insp.where", { n: target.items.length })}
         </h3>
         <ul className="mt-2 space-y-3">
           {target.items.map((item, i) => (
             <li key={i} className="rounded-md border border-border bg-surface p-3 text-sm">
               <div className="flex flex-wrap items-center gap-2">
                 {item.type && <Badge tone="outline">{item.type}</Badge>}
-                {item.viewport && <Badge>{item.viewport}</Badge>}
+                {item.viewport && <Badge>{tEnum("vp", item.viewport)}</Badge>}
               </div>
-              <div className="mt-2 text-xs text-muted">Location</div>
+              <div className="mt-2 text-xs text-muted">{t("insp.location")}</div>
               <Mono>{item.location}</Mono>
               {item.value && (
                 <>
-                  <div className="mt-2 text-xs text-muted">Observed value</div>
+                  <div className="mt-2 text-xs text-muted">{t("insp.value")}</div>
                   <Mono>{item.value}</Mono>
                 </>
               )}

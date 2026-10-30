@@ -76,6 +76,9 @@ body {
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* Long words (common in Turkish) must wrap instead of widening the page on phones. */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 ::selection {

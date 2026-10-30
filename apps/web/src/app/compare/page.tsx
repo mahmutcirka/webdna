@@ -3,9 +3,20 @@
 import { AlertTriangle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import type { ReportComparison, ScanRecord, ValueDiff } from "@webdna/shared";
+import {
+  AI_CONCLUSION_LABELS,
+  type ReportComparison,
+  type ScanRecord,
+  type ValueDiff,
+} from "@webdna/shared";
 import { Badge, Callout, Card, CardHeader, Empty, Mono, Table, Td } from "@/components/ui";
-import { api, ApiError, formatDate } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
+import { api, ApiError, localizeError } from "@/lib/api";
+
+/** The comparison carries English conclusion labels; map them back to their keys to translate. */
+const CONCLUSION_BY_LABEL = Object.fromEntries(
+  Object.entries(AI_CONCLUSION_LABELS).map(([k, v]) => [v, k]),
+) as Record<string, string>;
 
 function DiffRow({
   label,
@@ -58,6 +69,10 @@ function DiffRow({
 
 function CompareInner() {
   const params = useSearchParams();
+  const i18n = useI18n();
+  const { t, tEnum, formatDate } = i18n;
+  const conclusion = (label: string) =>
+    CONCLUSION_BY_LABEL[label] ? tEnum("conclusion", CONCLUSION_BY_LABEL[label]) : label;
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [a, setA] = useState(params.get("a") ?? "");
   const [b, setB] = useState(params.get("b") ?? "");
@@ -68,7 +83,10 @@ function CompareInner() {
     api
       .listScans(200)
       .then(({ scans }) => setScans(scans.filter((s) => s.status === "completed")))
-      .catch((e) => setError(e instanceof ApiError ? e.message : "Could not load scans."));
+      .catch((e) =>
+        setError(e instanceof ApiError ? localizeError(e, i18n) : t("dash.loadFailed")),
+      );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -80,7 +98,8 @@ function CompareInner() {
         setCmp(comparison);
         setError(undefined);
       })
-      .catch((e) => setError(e instanceof ApiError ? e.message : "Comparison failed."));
+      .catch((e) => setError(e instanceof ApiError ? localizeError(e, i18n) : t("cmp.failed")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [a, b]);
 
   const option = (s: ScanRecord) => (
@@ -92,16 +111,13 @@ function CompareInner() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-text">Compare scans</h1>
-        <p className="mt-1 text-sm text-muted">
-          Compare design tokens, components, responsive behaviour and AI-origin findings between two
-          completed scans.
-        </p>
+        <h1 className="text-2xl font-semibold text-text">{t("cmp.title")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("cmp.subtitle")}</p>
       </div>
       <Card className="grid gap-4 p-5 md:grid-cols-2">
         {[
-          ["Scan A (before)", a, setA],
-          ["Scan B (after)", b, setB],
+          [t("cmp.a"), a, setA],
+          [t("cmp.b"), b, setB],
         ].map(([label, value, set]) => (
           <label key={label as string} className="text-sm">
             <span className="text-muted">{label as string}</span>
@@ -110,7 +126,7 @@ function CompareInner() {
               onChange={(e) => (set as (v: string) => void)(e.target.value)}
               className="mt-1 h-10 w-full rounded-md border border-border-strong bg-surface px-2 text-sm text-text"
             >
-              <option value="">Select a completed scan…</option>
+              <option value="">{t("cmp.select")}</option>
               {scans.map(option)}
             </select>
           </label>
@@ -121,13 +137,7 @@ function CompareInner() {
           {error}
         </Callout>
       )}
-      {!cmp && !error && (
-        <Empty>
-          {scans.length < 2
-            ? "At least two completed scans are needed."
-            : "Choose two scans to compare."}
-        </Empty>
-      )}
+      {!cmp && !error && <Empty>{scans.length < 2 ? t("cmp.needTwo") : t("cmp.choose")}</Empty>}
       {cmp && (
         <>
           {cmp.notes.map((n) => (
@@ -136,10 +146,7 @@ function CompareInner() {
             </Callout>
           ))}
           <Card>
-            <CardHeader
-              title="Detector versions"
-              description="A changed finding can come from a changed rule rather than a changed website."
-            />
+            <CardHeader title={t("cmp.versions")} description={t("cmp.versionsNote")} />
             <div className="space-y-2 px-5 py-4 text-sm">
               <div>
                 A: <Mono>{cmp.a.ruleSetVersion}</Mono>
@@ -148,12 +155,12 @@ function CompareInner() {
                 B: <Mono>{cmp.b.ruleSetVersion}</Mono>
               </div>
               {cmp.detectorVersionChanges.length === 0 ? (
-                <p className="text-muted">All detectors ran at the same versions.</p>
+                <p className="text-muted">{t("cmp.sameVersions")}</p>
               ) : (
                 <ul className="list-disc pl-5 text-muted">
                   {cmp.detectorVersionChanges.map((d) => (
                     <li key={d.id}>
-                      <Mono>{d.id}</Mono>: {d.a ?? "absent"} → {d.b ?? "absent"}
+                      <Mono>{d.id}</Mono>: {d.a ?? t("cmp.absent")} → {d.b ?? t("cmp.absent")}
                     </li>
                   ))}
                 </ul>
@@ -161,23 +168,30 @@ function CompareInner() {
             </div>
           </Card>
           <Card>
-            <CardHeader title="Design tokens" />
-            <Table head={["Token type", "Added in B", "Removed in B", "Unchanged"]}>
-              <DiffRow label="Colours" diff={cmp.colors} swatch />
-              <DiffRow label="Font families" diff={cmp.fontFamilies} />
-              <DiffRow label="Font sizes (px)" diff={cmp.fontSizes} />
-              <DiffRow label="Spacing" diff={cmp.spacing} />
-              <DiffRow label="Radii" diff={cmp.radii} />
-              <DiffRow label="Shadows" diff={cmp.shadows} />
+            <CardHeader title={t("cmp.tokens")} />
+            <Table
+              head={[
+                t("cmp.head.type"),
+                t("cmp.head.added"),
+                t("cmp.head.removed"),
+                t("cmp.head.unchanged"),
+              ]}
+            >
+              <DiffRow label={t("cmp.row.colors")} diff={cmp.colors} swatch />
+              <DiffRow label={t("cmp.row.families")} diff={cmp.fontFamilies} />
+              <DiffRow label={t("cmp.row.sizes")} diff={cmp.fontSizes} />
+              <DiffRow label={t("cmp.row.spacing")} diff={cmp.spacing} />
+              <DiffRow label={t("cmp.row.radii")} diff={cmp.radii} />
+              <DiffRow label={t("cmp.row.shadows")} diff={cmp.shadows} />
             </Table>
           </Card>
           <div className="grid gap-5 lg:grid-cols-2">
             <Card>
-              <CardHeader title="Components" />
-              <Table head={["Pattern", "A", "B"]}>
+              <CardHeader title={t("cmp.components")} />
+              <Table head={[t("cmp.pattern"), "A", "B"]}>
                 {cmp.components.map((c) => (
                   <tr key={c.kind}>
-                    <Td className="capitalize">{c.kind.replace("_", " ")}</Td>
+                    <Td className="capitalize">{tEnum("ckind", c.kind)}</Td>
                     <Td className="tabular-nums">{c.a}</Td>
                     <Td className={c.a !== c.b ? "tabular-nums font-semibold" : "tabular-nums"}>
                       {c.b}
@@ -187,25 +201,31 @@ function CompareInner() {
               </Table>
             </Card>
             <Card>
-              <CardHeader title="Responsive" />
+              <CardHeader title={t("cmp.responsive")} />
               <div className="space-y-2 px-5 py-4 text-sm text-muted">
+                <div>{t("cmp.recorded", { a: cmp.responsive.a, b: cmp.responsive.b })}</div>
                 <div>
-                  Recorded differences: A {cmp.responsive.a} · B {cmp.responsive.b}
+                  {t("cmp.overflowA", {
+                    v: cmp.responsive.overflowA.join("; ") || t("common.none"),
+                  })}
                 </div>
-                <div>Overflow in A: {cmp.responsive.overflowA.join("; ") || "none"}</div>
-                <div>Overflow in B: {cmp.responsive.overflowB.join("; ") || "none"}</div>
+                <div>
+                  {t("cmp.overflowB", {
+                    v: cmp.responsive.overflowB.join("; ") || t("common.none"),
+                  })}
+                </div>
               </div>
             </Card>
           </div>
           <Card>
-            <CardHeader title="AI-origin findings" />
+            <CardHeader title={t("cmp.ai")} />
             <div className="space-y-3 px-5 py-4 text-sm">
               <div className="flex flex-wrap gap-2">
-                <Badge>A: {cmp.aiOrigin.conclusionA}</Badge>
-                <Badge>B: {cmp.aiOrigin.conclusionB}</Badge>
+                <Badge>A: {conclusion(cmp.aiOrigin.conclusionA)}</Badge>
+                <Badge>B: {conclusion(cmp.aiOrigin.conclusionB)}</Badge>
               </div>
               {cmp.aiOrigin.findingsAdded.length + cmp.aiOrigin.findingsRemoved.length === 0 && (
-                <p className="text-muted">Same findings in both scans.</p>
+                <p className="text-muted">{t("cmp.sameFindings")}</p>
               )}
               {cmp.aiOrigin.findingsAdded.map((f) => (
                 <div key={f.key} className="text-text">
@@ -229,7 +249,7 @@ function CompareInner() {
 
 export default function ComparePage() {
   return (
-    <Suspense fallback={<p className="text-sm text-muted">Loading…</p>}>
+    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
       <CompareInner />
     </Suspense>
   );

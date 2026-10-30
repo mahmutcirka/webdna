@@ -133,10 +133,19 @@ test("exports contain the analysed data", async ({ page }) => {
 
 // Fonts differ by OS: CI (Linux) failed with 13 px overflow on "/" that Windows did not show.
 // Every check therefore also runs with a deliberately wide font stack.
-for (const font of ["system default", "wide (Verdana / DejaVu Sans)"]) {
-  test(`no horizontal overflow at 375 px on any page or report tab — ${font} font`, async ({
+// Turkish strings are longer than English ones, so both languages are checked.
+for (const [lang, font] of [
+  ["en", "system default"],
+  ["en", "wide (Verdana / DejaVu Sans)"],
+  ["tr", "system default"],
+  ["tr", "wide (Verdana / DejaVu Sans)"],
+] as const) {
+  test(`no horizontal overflow at 375 px on any page or report tab — ${lang}, ${font} font`, async ({
     page,
+    context,
+    baseURL,
   }) => {
+    await context.addCookies([{ name: "webdna-locale", value: lang, url: baseURL! }]);
     await page.setViewportSize({ width: 375, height: 812 });
     if (font.startsWith("wide")) {
       await page.addInitScript(() => {
@@ -257,24 +266,120 @@ test("DNS-rebinding requests through the web app's /api proxy are rejected", asy
   expect(await status("attacker.example:3311")).toBe(403);
 });
 
-test("pages render without hydration or runtime errors", async ({ page }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (e) => errors.push(`${page.url()} :: ${e.message.split("\n")[0]}`));
-  page.on("console", (m) => {
-    if (m.type() === "error" && /hydrat/i.test(m.text()))
-      errors.push(`${page.url()} :: ${m.text().split("\n")[0]}`);
+for (const lang of ["en", "tr"] as const) {
+  test(`pages render without hydration or runtime errors — ${lang}`, async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    await context.addCookies([{ name: "webdna-locale", value: lang, url: baseURL! }]);
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(`${page.url()} :: ${e.message.split("\n")[0]}`));
+    page.on("console", (m) => {
+      if (m.type() === "error" && /hydrat/i.test(m.text()))
+        errors.push(`${page.url()} :: ${m.text().split("\n")[0]}`);
+    });
+    for (const path of [
+      "/",
+      "/dashboard",
+      "/compare",
+      "/detectors",
+      "/sample",
+      `/scans/${basicScanId}`,
+    ]) {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(300);
+    }
+    expect(errors).toEqual([]);
   });
-  for (const path of [
-    "/",
-    "/dashboard",
-    "/compare",
-    "/detectors",
-    "/sample",
-    `/scans/${basicScanId}`,
-  ]) {
-    await page.goto(path);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(300);
-  }
-  expect(errors).toEqual([]);
+}
+
+test("the language switcher translates the UI and the choice persists", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "Inspect how a website is built",
+  );
+
+  await page.getByRole("button", { name: "Switch language to Türkçe" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "Bir web sitesinin nasıl yapıldığını inceleyin",
+  );
+  await expect(page.locator("html")).toHaveAttribute("lang", "tr");
+  await expect(page.getByRole("link", { name: "Panel" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Web sitesini analiz et" })).toBeVisible();
+
+  // The choice is stored in a cookie, so server-rendered pages come back in Turkish.
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Bir web sitesinin");
+  await page.goto("/dashboard");
+  await expect(page.getByText("Son taramalar")).toBeVisible();
+  await expect(page.getByText("tamamlandı").first()).toBeVisible();
+
+  // Report: UI labels are Turkish; engine-generated text is flagged as English.
+  await page.goto(`/scans/${basicScanId}`);
+  await page.getByRole("button", { name: "Yapay zekâ kökeni" }).click();
+  await expect(
+    page.getByText("Anlamlı bir yapay zekâ kökeni kanıtı bulunamadı").first(),
+  ).toBeVisible();
+  await expect(page.getByText(/kalibre edilmiş olasılıklar değildir/)).toBeVisible();
+  await expect(page.getByText(/analiz motorunun ürettiği/)).toBeVisible();
+  await page.getByRole("button", { name: "Tasarım sistemi" }).click();
+  await page.getByRole("button", { name: /#2f6f4e/ }).click();
+  const dialog = page.getByRole("dialog", { name: "Kanıt denetçisi" });
+  await expect(dialog.getByText("Renk #2f6f4e")).toBeVisible();
+  await expect(dialog.getByRole("img", { name: "masaüstü ekran görüntüsü" }).first()).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  // Switching back restores English.
+  await page.getByRole("button", { name: "Dili English olarak değiştir" }).click();
+  await expect(page.getByRole("button", { name: "AI-origin" })).toBeVisible();
+});
+
+test("Turkish browsers get Turkish by default; a saved choice wins", async ({
+  browser,
+  baseURL,
+}) => {
+  const tr = await browser.newContext({
+    baseURL,
+    locale: "tr-TR",
+    extraHTTPHeaders: { "accept-language": "tr-TR,tr;q=0.9" },
+  });
+  const page = await tr.newPage();
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("lang", "tr");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Bir web sitesinin");
+  await tr.addCookies([{ name: "webdna-locale", value: "en", url: baseURL! }]);
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await tr.close();
+});
+
+test("Turkish error states are translated and keep the server detail", async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  await context.addCookies([{ name: "webdna-locale", value: "tr", url: baseURL! }]);
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  const input = page.getByLabel("Web sitesi adresi");
+  await expect(async () => {
+    await input.fill("ftp://example.com/file");
+    await expect(page.getByRole("button", { name: "Web sitesini analiz et" })).toBeEnabled({
+      timeout: 1000,
+    });
+  }).toPass({ timeout: 60_000 });
+  await page.getByRole("button", { name: "Web sitesini analiz et" }).click();
+  await expect(page.locator("p[role=alert]")).toContainText("Geçersiz adres.");
+  await expect(page.locator("p[role=alert]")).toContainText("Only http:// and https://");
+
+  await input.fill("http://10.0.0.1/");
+  await page.getByRole("button", { name: "Web sitesini analiz et" }).click();
+  await page.waitForURL(/\/scans\//);
+  await expect(page.getByText("Analiz başarısız oldu")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(/her zaman engellenir/)).toBeVisible();
+  await expect(page.getByText("Adres doğrulanıyor")).toBeVisible();
 });

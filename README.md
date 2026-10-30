@@ -29,6 +29,7 @@ The same pipeline is useful on its own for design-system extraction, responsive 
 | Evidence inspector   | Click any token, component or finding to see the selector, observed value and the element highlighted on the screenshot it was measured in                                                                                                                     |
 | History & comparison | Diff two scans; detector-version changes are shown separately from site changes                                                                                                                                                                                |
 | Exports              | JSON report, CSS variables, Tailwind CSS v4 `@theme`, Markdown, evidence ZIP (report + WebDNA screenshots)                                                                                                                                                     |
+| Languages            | English and Turkish interface (EN/TR switcher; defaults to the browser language). Engine-generated explanations are English                                                                                                                                    |
 
 | Design system                                            | AI-origin analysis                                      |
 | -------------------------------------------------------- | ------------------------------------------------------- |

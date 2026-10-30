@@ -8,24 +8,25 @@ import type { Report, ScanRecord } from "@webdna/shared";
 import { ReportWorkspace } from "@/components/report/workspace";
 import { StageList } from "@/components/stage-list";
 import { Button, Card, CardHeader, Callout, StatusBadge } from "@/components/ui";
-import { api, ApiError, formatDate, screenshotUrl } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
+import type { MessageKey } from "@/i18n/messages";
+import { api, ApiError, localizeError, screenshotUrl } from "@/lib/api";
 
-const FAILURE_HELP: Record<string, string> = {
-  invalid_url: "Check the URL format. Only http:// and https:// URLs are accepted.",
-  blocked_destination:
-    "WebDNA only connects to public internet addresses. Private, loopback, link-local and metadata destinations are always blocked, including via redirects.",
-  dns_failure: "The domain name could not be resolved.",
-  navigation_timeout:
-    "The page did not finish loading in time. Slow or very large pages may exceed the limit.",
-  navigation_failed:
-    "The browser could not load the page (connection error, TLS error, download, or too many redirects).",
-  resource_limit: "The page exceeded a safety limit (transfer size, request count or redirects).",
-  scan_timeout: "The whole scan exceeded its time limit.",
-  interrupted: "The server restarted while the scan was running.",
-};
+const HELP_CODES = new Set([
+  "invalid_url",
+  "blocked_destination",
+  "dns_failure",
+  "navigation_timeout",
+  "navigation_failed",
+  "resource_limit",
+  "scan_timeout",
+  "interrupted",
+]);
 
 export default function ScanPage() {
   const { id } = useParams<{ id: string }>();
+  const i18n = useI18n();
+  const { t, tEnum, formatDate } = i18n;
   const [scan, setScan] = useState<ScanRecord>();
   const [report, setReport] = useState<Report>();
   const [error, setError] = useState<string>();
@@ -47,7 +48,7 @@ export default function ScanPage() {
         if (scan.status === "queued" || scan.status === "running")
           timer.current = setTimeout(poll, 1000);
       } catch (e) {
-        if (alive) setError(e instanceof ApiError ? e.message : "Could not load the scan.");
+        if (alive) setError(e instanceof ApiError ? localizeError(e, i18n) : t("scan.loadFailed"));
       }
     };
     void poll();
@@ -55,6 +56,8 @@ export default function ScanPage() {
       alive = false;
       clearTimeout(timer.current);
     };
+    // Polling restarts only when the scan changes, not when the language does.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (error)
@@ -63,7 +66,7 @@ export default function ScanPage() {
         {error}
       </Callout>
     );
-  if (!scan) return <p className="text-sm text-muted">Loading scan…</p>;
+  if (!scan) return <p className="text-sm text-muted">{t("scan.loading")}</p>;
   if (report)
     return (
       <ReportWorkspace report={report} scanId={id} screenshot={(name) => screenshotUrl(id, name)} />
@@ -75,7 +78,7 @@ export default function ScanPage() {
     try {
       await api.cancelScan(id);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Cancel failed.");
+      setError(e instanceof ApiError ? localizeError(e, i18n) : t("scan.cancelFailed"));
     }
   };
 
@@ -86,32 +89,30 @@ export default function ScanPage() {
           <h1 className="truncate text-xl font-semibold text-text">
             {scan.domain ?? scan.inputUrl}
           </h1>
-          <StatusBadge status={scan.status} />
+          <StatusBadge status={scan.status} label={tEnum("status", scan.status)} />
         </div>
         <p className="mt-1 truncate font-mono text-xs text-faint">
           {scan.normalizedUrl ?? scan.inputUrl}
         </p>
-        <p className="mt-1 text-xs text-muted">Created {formatDate(scan.createdAt)}</p>
+        <p className="mt-1 text-xs text-muted">
+          {t("scan.created", { date: formatDate(scan.createdAt) })}
+        </p>
       </div>
       <Card>
         <CardHeader
           title={
             active
-              ? "Analysis in progress"
+              ? t("scan.inProgress")
               : scan.status === "cancelled"
-                ? "Analysis cancelled"
-                : "Analysis failed"
+                ? t("scan.cancelled")
+                : t("scan.failed")
           }
-          description={
-            active
-              ? "These are the worker's actual stages; each updates when the backend finishes it."
-              : undefined
-          }
+          description={active ? t("scan.stagesNote") : undefined}
           action={
             active ? (
               <Button variant="danger" onClick={() => void cancel()} disabled={cancelling}>
                 {cancelling ? <Loader2 size={14} className="animate-spin" /> : <Ban size={14} />}{" "}
-                Cancel
+                {t("scan.cancel")}
               </Button>
             ) : undefined
           }
@@ -125,17 +126,17 @@ export default function ScanPage() {
           <div className="font-medium">
             {scan.error.code}: {scan.error.message}
           </div>
-          {FAILURE_HELP[scan.error.code] && (
-            <div className="mt-1 opacity-90">{FAILURE_HELP[scan.error.code]}</div>
+          {HELP_CODES.has(scan.error.code) && (
+            <div className="mt-1 opacity-90">
+              {t(`failureHelp.${scan.error.code}` as MessageKey)}
+            </div>
           )}
-          <div className="mt-2">
-            No report was generated, and no partial results are shown as if the scan had succeeded.
-          </div>
+          <div className="mt-2">{t("scan.noReport")}</div>
         </Callout>
       )}
       {!active && (
         <Link href="/dashboard" className="text-sm text-accent hover:underline">
-          ← Back to dashboard
+          {t("scan.back")}
         </Link>
       )}
     </div>

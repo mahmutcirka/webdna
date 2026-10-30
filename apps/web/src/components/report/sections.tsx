@@ -16,6 +16,7 @@ import {
   Td,
   conclusionTone,
 } from "../ui";
+import { useI18n } from "@/i18n/client";
 import { fromElementRefs, useInspect, type ScreenshotSource } from "./inspector";
 
 function InspectButton({
@@ -28,13 +29,15 @@ function InspectButton({
   refs: Parameters<typeof fromElementRefs>[0];
 }) {
   const inspect = useInspect();
+  const { t } = useI18n();
   if (refs.length === 0) return null;
   return (
     <button
       className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
       onClick={() => inspect({ title, subtitle, items: fromElementRefs(refs) })}
     >
-      <Search size={12} /> {refs.length} example{refs.length === 1 ? "" : "s"}
+      <Search size={12} />{" "}
+      {t(refs.length === 1 ? "common.example.one" : "common.example.other", { n: refs.length })}
     </button>
   );
 }
@@ -42,18 +45,23 @@ function InspectButton({
 // ---------------- Overview ----------------
 
 export function OverviewSection({ report, shots }: { report: Report; shots: ScreenshotSource }) {
-  const t = report.target;
+  const { t, tEnum } = useI18n();
+  const target = report.target;
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="HTTP status" value={String(t.statusCode ?? "—")} hint={t.contentType} />
-        <Stat label="Colours measured" value={String(report.design.colors.length)} />
-        <Stat label="Component patterns" value={String(report.components.length)} />
-        <Stat label="Scan duration" value={`${(report.durationMs / 1000).toFixed(1)} s`} />
+        <Stat
+          label={t("ov.http")}
+          value={String(target.statusCode ?? "—")}
+          hint={target.contentType}
+        />
+        <Stat label={t("ov.colors")} value={String(report.design.colors.length)} />
+        <Stat label={t("ov.components")} value={String(report.components.length)} />
+        <Stat label={t("ov.duration")} value={`${(report.durationMs / 1000).toFixed(1)} s`} />
       </div>
       {report.warnings.length > 0 && (
         <Callout tone="warn" icon={<AlertTriangle size={15} />}>
-          <div className="font-medium">Scan warnings</div>
+          <div className="font-medium">{t("ov.warnings")}</div>
           <ul className="mt-1 list-disc pl-4">
             {report.warnings.map((w) => (
               <li key={w.code + w.message}>{w.message}</li>
@@ -63,29 +71,31 @@ export function OverviewSection({ report, shots }: { report: Report; shots: Scre
       )}
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
-          <CardHeader title="Target" />
+          <CardHeader title={t("ov.target")} />
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 px-5 py-4 text-sm">
-            <dt className="text-muted">Input URL</dt>
-            <dd className="break-all font-mono text-xs text-text">{t.inputUrl}</dd>
-            <dt className="text-muted">Final URL</dt>
-            <dd className="break-all font-mono text-xs text-text">{t.finalUrl}</dd>
-            {t.redirectChain.length > 0 && (
+            <dt className="text-muted">{t("ov.inputUrl")}</dt>
+            <dd className="break-all font-mono text-xs text-text">{target.inputUrl}</dd>
+            <dt className="text-muted">{t("ov.finalUrl")}</dt>
+            <dd className="break-all font-mono text-xs text-text">{target.finalUrl}</dd>
+            {target.redirectChain.length > 0 && (
               <>
-                <dt className="text-muted">Redirects</dt>
+                <dt className="text-muted">{t("ov.redirects")}</dt>
                 <dd className="break-all font-mono text-xs text-text">
-                  {t.redirectChain.join(" → ")}
+                  {target.redirectChain.join(" → ")}
                 </dd>
               </>
             )}
-            <dt className="text-muted">Title</dt>
+            <dt className="text-muted">{t("ov.title")}</dt>
             <dd className="text-text">{report.metadata.title ?? "—"}</dd>
-            <dt className="text-muted">Description</dt>
+            <dt className="text-muted">{t("ov.description")}</dt>
             <dd className="text-text">{report.metadata.description ?? "—"}</dd>
-            <dt className="text-muted">Language</dt>
-            <dd className="text-text">{report.metadata.lang ?? "not declared"}</dd>
-            <dt className="text-muted">Generator</dt>
-            <dd className="text-text">{report.metadata.generator.join(", ") || "none declared"}</dd>
-            <dt className="text-muted">Scanned</dt>
+            <dt className="text-muted">{t("ov.language")}</dt>
+            <dd className="text-text">{report.metadata.lang ?? t("common.notDeclared")}</dd>
+            <dt className="text-muted">{t("ov.generator")}</dt>
+            <dd className="text-text">
+              {report.metadata.generator.join(", ") || t("common.noneDeclared")}
+            </dd>
+            <dt className="text-muted">{t("ov.scanned")}</dt>
             <dd className="text-text">
               {/* Formatted in the viewer's locale and time zone; may differ from the server render. */}
               <time dateTime={report.createdAt} suppressHydrationWarning>
@@ -95,49 +105,54 @@ export function OverviewSection({ report, shots }: { report: Report; shots: Scre
           </dl>
         </Card>
         <Card>
-          <CardHeader
-            title="AI-origin summary"
-            description="See the AI-origin tab for evidence, alternatives and limitations."
-          />
+          <CardHeader title={t("ov.aiSummary")} description={t("ov.aiSummary.desc")} />
           <div className="space-y-3 px-5 py-4 text-sm">
             <Badge tone={conclusionTone(report.aiOrigin.conclusion)} className="px-2 py-1 text-sm">
-              {report.aiOrigin.conclusionLabel}
+              {tEnum("conclusion", report.aiOrigin.conclusion)}
             </Badge>
             <div>
-              <span className="text-muted">Platforms identified: </span>
+              <span className="text-muted">{t("ov.platforms")} </span>
               <span className="text-text">
                 {report.aiOrigin.platformIdentification.platforms.map((p) => p.name).join(", ") ||
-                  "none"}
+                  t("common.none")}
               </span>
             </div>
             <div className="text-muted">
-              {report.aiOrigin.aiFindings.length} AI-related ·{" "}
-              {report.aiOrigin.templateFindings.length} template ·{" "}
-              {report.aiOrigin.platformFindings.length} platform findings
+              {t("ov.findingCounts", {
+                ai: report.aiOrigin.aiFindings.length,
+                tpl: report.aiOrigin.templateFindings.length,
+                pf: report.aiOrigin.platformFindings.length,
+              })}
             </div>
           </div>
         </Card>
       </div>
       <Card>
-        <CardHeader
-          title="Viewports"
-          description="Real screenshots captured by the isolated browser."
-        />
+        <CardHeader title={t("ov.viewports")} description={t("ov.viewports.desc")} />
         <div className="grid gap-4 p-5 sm:grid-cols-3">
           {report.viewports.map((v) => (
             <figure key={v.id}>
               <img
                 src={shots.url(v.screenshots.viewport)}
-                alt={`${v.id} screenshot`}
+                alt={t("insp.screenshotAlt", { vp: tEnum("vp", v.id) })}
                 className="w-full rounded border border-border"
                 loading="lazy"
               />
               <figcaption className="mt-2 text-xs text-muted">
-                {v.id} {v.width}×{v.height} · document {v.documentWidth}×{v.documentHeight}
-                {v.horizontalOverflow && <span className="text-warn"> · horizontal overflow</span>}
+                {t("ov.vpCaption", {
+                  vp: tEnum("vp", v.id),
+                  w: v.width,
+                  h: v.height,
+                  dw: v.documentWidth,
+                  dh: v.documentHeight,
+                })}
+                {v.horizontalOverflow && <span className="text-warn"> · {t("ov.hOverflow")}</span>}
                 <div className="text-faint">
-                  {v.sampledElements} of {v.elementCount} elements measured · loaded in{" "}
-                  {(v.loadMs / 1000).toFixed(1)} s
+                  {t("ov.measured", {
+                    s: v.sampledElements,
+                    n: v.elementCount,
+                    t: (v.loadMs / 1000).toFixed(1),
+                  })}
                 </div>
                 {shots.fullPage && v.screenshots.fullPage && (
                   <a
@@ -146,7 +161,8 @@ export function OverviewSection({ report, shots }: { report: Report; shots: Scre
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Full-page screenshot{v.screenshots.fullPageTruncated ? " (truncated)" : ""}
+                    {t("ov.fullPage")}
+                    {v.screenshots.fullPageTruncated ? ` ${t("ov.truncated")}` : ""}
                   </a>
                 )}
               </figcaption>
@@ -169,12 +185,13 @@ function ValueList({
   values: MeasuredValue[];
   render?: (v: MeasuredValue) => ReactNode;
 }) {
+  const { t } = useI18n();
   return (
     <Card>
-      <CardHeader title={title} description={`${values.length} distinct measured values`} />
+      <CardHeader title={title} description={t("ds.distinct", { n: values.length })} />
       {values.length === 0 ? (
         <div className="p-5">
-          <Empty>None measured.</Empty>
+          <Empty>{t("ds.noneMeasured")}</Empty>
         </div>
       ) : (
         <ul className="divide-y divide-border">
@@ -193,20 +210,15 @@ function ValueList({
 }
 
 export function DesignSection({ report }: { report: Report }) {
+  const { t, tEnum } = useI18n();
   const d = report.design;
   const inspect = useInspect();
   const maxSpacing = Math.max(1, ...d.spacing.map((s) => s.count));
   return (
     <div className="space-y-5">
-      <Callout>
-        Values below are measured from computed styles. Only the “Inferred roles” card is
-        interpretation; each role states its basis.
-      </Callout>
+      <Callout>{t("ds.callout")}</Callout>
       <Card>
-        <CardHeader
-          title="Colours"
-          description="Distinct computed colours, normalised to sRGB hex. Click a swatch to see where it is used."
-        />
+        <CardHeader title={t("ds.colors")} description={t("ds.colors.desc")} />
         <div className="grid grid-cols-2 gap-3 p-5 sm:grid-cols-4 lg:grid-cols-6">
           {d.colors.map((c) => (
             <button
@@ -214,8 +226,8 @@ export function DesignSection({ report }: { report: Report }) {
               className="group overflow-hidden rounded-md border border-border text-left hover:border-border-strong"
               onClick={() =>
                 inspect({
-                  title: `Colour ${c.hex}`,
-                  subtitle: c.original ? `Computed as ${c.original}` : undefined,
+                  title: t("ds.colorTitle", { hex: c.hex }),
+                  subtitle: c.original ? t("ds.computedAs", { v: c.original }) : undefined,
                   items: fromElementRefs(c.samples),
                 })
               }
@@ -235,19 +247,24 @@ export function DesignSection({ report }: { report: Report }) {
         </div>
       </Card>
       <Card>
-        <CardHeader
-          title="Inferred roles"
-          description="Heuristic interpretations of the measured values above."
-        />
+        <CardHeader title={t("ds.roles")} description={t("ds.roles.desc")} />
         {d.roles.length === 0 ? (
           <div className="p-5">
-            <Empty>No roles could be inferred.</Empty>
+            <Empty>{t("ds.roles.none")}</Empty>
           </div>
         ) : (
-          <Table head={["Role", "Value", "Confidence", "Basis", ""]}>
+          <Table
+            head={[
+              t("ds.head.role"),
+              t("ds.head.value"),
+              t("ds.head.confidence"),
+              t("ds.head.basis"),
+              "",
+            ]}
+          >
             {d.roles.map((r) => (
               <tr key={r.role}>
-                <Td className="font-medium">{r.role}</Td>
+                <Td className="font-medium">{tEnum("role", r.role)}</Td>
                 <Td>
                   <span className="inline-flex items-center gap-2">
                     {r.kind === "color" && (
@@ -269,12 +286,15 @@ export function DesignSection({ report }: { report: Report }) {
                           : "neutral"
                     }
                   >
-                    {r.confidence}
+                    {tEnum("confidence", r.confidence)}
                   </Badge>
                 </Td>
                 <Td className="text-muted">{r.basis}</Td>
                 <Td>
-                  <InspectButton title={`Role: ${r.role}`} refs={r.evidence} />
+                  <InspectButton
+                    title={t("ds.roleTitle", { r: tEnum("role", r.role) })}
+                    refs={r.evidence}
+                  />
                 </Td>
               </tr>
             ))}
@@ -284,11 +304,15 @@ export function DesignSection({ report }: { report: Report }) {
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader
-            title="Spacing"
+            title={t("ds.spacing")}
             description={
               d.spacingBase
-                ? `Inferred base unit ${d.spacingBase.basePx}px (${Math.round(d.spacingBase.share * 100)}% of values are multiples; ${d.spacingBase.confidence} confidence)`
-                : "No consistent base unit inferred."
+                ? t("ds.spacingBase", {
+                    px: d.spacingBase.basePx,
+                    pct: Math.round(d.spacingBase.share * 100),
+                    c: tEnum("confidence", d.spacingBase.confidence),
+                  })
+                : t("ds.spacingNone")
             }
           />
           <ul className="space-y-1.5 p-5">
@@ -307,7 +331,7 @@ export function DesignSection({ report }: { report: Report }) {
           </ul>
         </Card>
         <ValueList
-          title="Border radii"
+          title={t("ds.radii")}
           values={d.radii}
           render={(v) => (
             <span
@@ -317,7 +341,7 @@ export function DesignSection({ report }: { report: Report }) {
           )}
         />
         <ValueList
-          title="Shadows"
+          title={t("ds.shadows")}
           values={d.shadows}
           render={(v) => (
             <span
@@ -326,20 +350,24 @@ export function DesignSection({ report }: { report: Report }) {
             />
           )}
         />
-        <ValueList title="Borders" values={d.borders} />
+        <ValueList title={t("ds.borders")} values={d.borders} />
       </div>
       <Card>
-        <CardHeader
-          title="Declared custom properties"
-          description="Custom properties defined on :root/html in the site's CSS, with their original names."
-        />
+        <CardHeader title={t("ds.custom")} description={t("ds.custom.desc")} />
         {d.customProperties.length === 0 ? (
           <div className="p-5">
-            <Empty>No custom properties found in inspected stylesheets.</Empty>
+            <Empty>{t("ds.custom.none")}</Empty>
           </div>
         ) : (
           <div className="max-h-96 overflow-y-auto">
-            <Table head={["Name", "Value", "Selector", "Source"]}>
+            <Table
+              head={[
+                t("ds.head.name"),
+                t("ds.head.value"),
+                t("ds.head.selector"),
+                t("ds.head.source"),
+              ]}
+            >
               {d.customProperties.slice(0, 150).map((p) => (
                 <tr key={p.name + p.selector + p.source}>
                   <Td>
@@ -363,22 +391,27 @@ export function DesignSection({ report }: { report: Report }) {
 // ---------------- Typography ----------------
 
 export function TypographySection({ report }: { report: Report }) {
-  const t = report.design.typography;
+  const { t, formatNumber } = useI18n();
+  const ty = report.design.typography;
   return (
     <div className="space-y-5">
       <Card>
-        <CardHeader
-          title="Font families"
-          description="First family of each computed font stack, weighted by measured text length."
-        />
-        <Table head={["Family", "Elements", "Text chars", "Full stack"]}>
-          {t.families.map((f) => (
+        <CardHeader title={t("ty.families")} description={t("ty.families.desc")} />
+        <Table
+          head={[
+            t("ty.head.family"),
+            t("ty.head.elements"),
+            t("ty.head.chars"),
+            t("ty.head.stack"),
+          ]}
+        >
+          {ty.families.map((f) => (
             <tr key={f.family}>
               <Td className="font-medium">
                 <span style={{ fontFamily: f.stack }}>{f.family}</span>
               </Td>
               <Td className="tabular-nums">{f.count}</Td>
-              <Td className="tabular-nums">{f.textChars.toLocaleString("en-US")}</Td>
+              <Td className="tabular-nums">{formatNumber(f.textChars)}</Td>
               <Td>
                 <Mono>{f.stack}</Mono>
               </Td>
@@ -388,11 +421,11 @@ export function TypographySection({ report }: { report: Report }) {
       </Card>
       <Card>
         <CardHeader
-          title="Text styles"
-          description={`Size scale: ${t.sizeScalePx.join(" · ")} px. Previews use your local fonts and may differ.`}
+          title={t("ty.styles")}
+          description={t("ty.styles.desc", { s: ty.sizeScalePx.join(" · ") })}
         />
         <ul className="divide-y divide-border">
-          {t.styles.map((s, i) => (
+          {ty.styles.map((s, i) => (
             <li
               key={i}
               className="flex flex-col gap-2 px-5 py-3 md:flex-row md:items-center md:gap-6"
@@ -408,7 +441,7 @@ export function TypographySection({ report }: { report: Report }) {
                   textTransform: s.textTransform as "none",
                 }}
               >
-                The quick brown fox
+                {t("ty.preview")}
               </div>
               <div className="flex shrink-0 flex-wrap items-center gap-2 text-xs text-muted">
                 <Mono>
@@ -420,7 +453,7 @@ export function TypographySection({ report }: { report: Report }) {
                     .join(" ")}
                 </span>
                 <InspectButton
-                  title={`Text style ${s.fontSize} ${s.fontWeight}`}
+                  title={t("ty.styleTitle", { s: s.fontSize, w: s.fontWeight })}
                   refs={s.samples}
                 />
               </div>
@@ -435,21 +468,19 @@ export function TypographySection({ report }: { report: Report }) {
 // ---------------- Components ----------------
 
 export function ComponentsSection({ report }: { report: Report }) {
+  const { t, tEnum } = useI18n();
   return (
     <div className="space-y-5">
-      <Callout>
-        These are visual patterns detected from DOM structure and computed CSS. They do not identify
-        which library or framework component produced them.
-      </Callout>
+      <Callout>{t("co.callout")}</Callout>
       {report.components.length === 0 ? (
-        <Empty>No component patterns detected.</Empty>
+        <Empty>{t("co.none")}</Empty>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {report.components.map((c, i) => (
             <Card key={i} className="p-4">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-semibold capitalize text-text">
-                  {c.kind.replace("_", " ")}
+                  {tEnum("ckind", c.kind)}
                 </span>
                 <Badge
                   tone={
@@ -460,7 +491,7 @@ export function ComponentsSection({ report }: { report: Report }) {
                         : "neutral"
                   }
                 >
-                  {c.confidence}
+                  {tEnum("confidence", c.confidence)}
                 </Badge>
               </div>
               <div className="mt-1 text-xs text-muted">{c.variant}</div>
@@ -479,7 +510,10 @@ export function ComponentsSection({ report }: { report: Report }) {
                 {c.basis}
               </div>
               <div className="mt-2">
-                <InspectButton title={`${c.kind}: ${c.variant}`} refs={c.examples} />
+                <InspectButton
+                  title={`${tEnum("ckind", c.kind)}: ${c.variant}`}
+                  refs={c.examples}
+                />
               </div>
             </Card>
           ))}
@@ -492,46 +526,47 @@ export function ComponentsSection({ report }: { report: Report }) {
 // ---------------- Layout ----------------
 
 export function LayoutSection({ report }: { report: Report }) {
+  const { t } = useI18n();
   const l = report.layout;
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Flex containers" value={String(l.flexContainers)} />
-        <Stat label="Grid containers" value={String(l.gridContainers)} />
+        <Stat label={t("la.flex")} value={String(l.flexContainers)} />
+        <Stat label={t("la.grid")} value={String(l.gridContainers)} />
         <Stat
-          label="Landmark elements"
+          label={t("la.landmarks")}
           value={String(l.landmarks.reduce((n, x) => n + x.count, 0))}
         />
-        <Stat label="Headings" value={String(l.headingOutline.reduce((n, x) => n + x.count, 0))} />
+        <Stat
+          label={t("la.headings")}
+          value={String(l.headingOutline.reduce((n, x) => n + x.count, 0))}
+        />
       </div>
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
-          <CardHeader
-            title="Grid patterns"
-            description="Column counts of CSS grid containers (primary viewport)."
-          />
+          <CardHeader title={t("la.gridPatterns")} description={t("la.gridPatterns.desc")} />
           {l.gridPatterns.length === 0 ? (
             <div className="p-5">
-              <Empty>No CSS grid containers.</Empty>
+              <Empty>{t("la.gridNone")}</Empty>
             </div>
           ) : (
             <ul className="divide-y divide-border">
               {l.gridPatterns.map((g) => (
                 <li key={g.columns} className="flex items-center gap-3 px-5 py-2 text-sm">
                   <span className="text-text">
-                    {g.columns} column{g.columns === 1 ? "" : "s"}
+                    {t(g.columns === 1 ? "la.column.one" : "la.column.other", { n: g.columns })}
                   </span>
                   <span className="ml-auto text-xs text-muted">{g.count}×</span>
-                  <InspectButton title={`${g.columns}-column grid`} refs={g.examples} />
+                  <InspectButton title={t("la.gridTitle", { n: g.columns })} refs={g.examples} />
                 </li>
               ))}
             </ul>
           )}
         </Card>
-        <ValueList title="Container max-widths" values={l.containerWidths} />
+        <ValueList title={t("la.maxWidths")} values={l.containerWidths} />
         <Card>
-          <CardHeader title="Landmarks and roles" />
-          <Table head={["Element", "Role", "Count"]}>
+          <CardHeader title={t("la.landmarksRoles")} />
+          <Table head={[t("la.head.element"), t("la.head.role"), t("la.head.count")]}>
             {l.landmarks.map((x) => (
               <tr key={x.tag + (x.role ?? "")}>
                 <Td>
@@ -544,10 +579,10 @@ export function LayoutSection({ report }: { report: Report }) {
           </Table>
         </Card>
         <Card>
-          <CardHeader title="Heading outline" />
+          <CardHeader title={t("la.outline")} />
           <div className="flex flex-wrap gap-2 p-5">
             {l.headingOutline.length === 0 ? (
-              <Empty>No headings.</Empty>
+              <Empty>{t("la.noHeadings")}</Empty>
             ) : (
               l.headingOutline.map((h) => (
                 <Badge key={h.level}>
@@ -565,10 +600,14 @@ export function LayoutSection({ report }: { report: Report }) {
 // ---------------- Responsive ----------------
 
 export function ResponsiveSection({ report, shots }: { report: Report; shots: ScreenshotSource }) {
+  const { t, tEnum } = useI18n();
   const r = report.responsive;
   const groups = new Map<string, typeof r.changes>();
   for (const c of r.changes)
-    groups.set(`${c.from} → ${c.to}`, [...(groups.get(`${c.from} → ${c.to}`) ?? []), c]);
+    groups.set(`${tEnum("vp", c.from)} → ${tEnum("vp", c.to)}`, [
+      ...(groups.get(`${tEnum("vp", c.from)} → ${tEnum("vp", c.to)}`) ?? []),
+      c,
+    ]);
   return (
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-3">
@@ -576,39 +615,44 @@ export function ResponsiveSection({ report, shots }: { report: Report; shots: Sc
           <figure key={v.id} className="rounded-lg border border-border bg-surface p-2">
             <img
               src={shots.url(v.screenshots.viewport)}
-              alt={`${v.id} screenshot`}
+              alt={t("insp.screenshotAlt", { vp: tEnum("vp", v.id) })}
               className="w-full rounded"
               loading="lazy"
             />
             <figcaption className="mt-2 px-1 text-xs text-muted">
-              {v.id} · {v.width}px · document {v.documentWidth}px wide
-              {v.horizontalOverflow && <span className="text-warn"> (overflow)</span>}
+              {t("re.caption", { vp: tEnum("vp", v.id), w: v.width, dw: v.documentWidth })}
+              {v.horizontalOverflow && <span className="text-warn"> {t("re.overflow")}</span>}
             </figcaption>
           </figure>
         ))}
       </div>
-      <Callout>
-        Most differences are intentional responsive design and are shown as informational. Only
-        horizontal overflow and very small mobile text are marked as potential issues.
-      </Callout>
+      <Callout>{t("re.callout")}</Callout>
       <div className="text-sm text-muted">
-        Breakpoints declared in inspected CSS:{" "}
+        {t("re.breakpoints")}{" "}
         {r.breakpointsDeclared.length
           ? r.breakpointsDeclared.map((b) => `${b}px`).join(", ")
-          : "none found"}
+          : t("common.noneFound")}
       </div>
       {r.notes.map((n) => (
         <Callout key={n}>{n}</Callout>
       ))}
       {[...groups.entries()].map(([pair, changes]) => (
         <Card key={pair}>
-          <CardHeader title={pair} description={`${changes.length} observed difference(s)`} />
-          <Table head={["Kind", "Change", "Before", "After", "Element"]}>
+          <CardHeader title={pair} description={t("re.observed", { n: changes.length })} />
+          <Table
+            head={[
+              t("re.head.kind"),
+              t("re.head.change"),
+              t("re.head.before"),
+              t("re.head.after"),
+              t("re.head.element"),
+            ]}
+          >
             {changes.map((c, i) => (
               <tr key={i}>
                 <Td>
                   <Badge tone={c.severity === "potential_issue" ? "warn" : "neutral"}>
-                    {c.kind.replace("_", " ")}
+                    {tEnum("rkind", c.kind)}
                   </Badge>
                 </Td>
                 <Td>{c.description}</Td>
@@ -622,9 +666,7 @@ export function ResponsiveSection({ report, shots }: { report: Report; shots: Sc
           </Table>
         </Card>
       ))}
-      {r.changes.length === 0 && (
-        <Empty>No differences were recorded between the captured viewports.</Empty>
-      )}
+      {r.changes.length === 0 && <Empty>{t("re.none")}</Empty>}
     </div>
   );
 }
@@ -632,49 +674,56 @@ export function ResponsiveSection({ report, shots }: { report: Report; shots: Sc
 // ---------------- Source analysis ----------------
 
 export function SourceSection({ report }: { report: Report }) {
+  const { t, tEnum, formatNumber } = useI18n();
   const s = report.source;
   const frameworks = report.aiOrigin.platformFindings;
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat
-          label="HTML"
-          value={s.html.inspected ? `${(s.html.bytes / 1024).toFixed(1)} KB` : "not inspected"}
-          hint={`${s.html.commentCount} comments`}
+          label={t("so.html")}
+          value={s.html.inspected ? `${(s.html.bytes / 1024).toFixed(1)} KB` : t("so.notInspected")}
+          hint={t("so.comments", { n: s.html.commentCount })}
         />
         <Stat
-          label="CSS files"
+          label={t("so.cssFiles")}
           value={String(s.css.filesInspected)}
-          hint={`${s.css.ruleCount.toLocaleString("en-US")} rules`}
+          hint={t("so.rules", { n: formatNumber(s.css.ruleCount) })}
         />
         <Stat
-          label="JS files"
+          label={t("so.jsFiles")}
           value={String(s.js.filesInspected)}
-          hint={`${s.js.parsed} parsed · ${s.js.minifiedLikely} minified`}
+          hint={t("so.jsHint", { p: s.js.parsed, m: s.js.minifiedLikely })}
         />
         <Stat
-          label="Source maps"
+          label={t("so.sourceMaps")}
           value={String(s.js.sourceMaps.filter((m) => m.status === "parsed").length)}
-          hint={`${s.js.sourceMaps.length} referenced`}
+          hint={t("so.referenced", { n: s.js.sourceMaps.length })}
         />
       </div>
       <Card>
-        <CardHeader
-          title="Frameworks, libraries and build tools"
-          description="Directly observed fingerprints (from the platform detectors), with their evidence."
-        />
+        <CardHeader title={t("so.frameworks")} description={t("so.frameworks.desc")} />
         {frameworks.length === 0 ? (
           <div className="p-5">
-            <Empty>No framework or build-tool fingerprint matched.</Empty>
+            <Empty>{t("so.frameworks.none")}</Empty>
           </div>
         ) : (
-          <Table head={["Subject", "Type", "Strength", "Evidence"]}>
+          <Table
+            head={[
+              t("so.head.subject"),
+              t("so.head.type"),
+              t("so.head.strength"),
+              t("so.head.evidence"),
+            ]}
+          >
             {frameworks.map((f) => (
               <tr key={f.id}>
                 <Td className="font-medium">{f.subject}</Td>
-                <Td className="text-muted">{f.subjectType?.replace("_", " ")}</Td>
+                <Td className="text-muted">
+                  {f.subjectType ? tEnum("subject", f.subjectType) : ""}
+                </Td>
                 <Td>
-                  <Badge>{f.evidenceStrength}</Badge>
+                  <Badge>{tEnum("strength", f.evidenceStrength)}</Badge>
                 </Td>
                 <Td>
                   <div className="space-y-1">
@@ -692,33 +741,31 @@ export function SourceSection({ report }: { report: Report }) {
       </Card>
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
-          <CardHeader title="HTML observations" />
+          <CardHeader title={t("so.htmlObs")} />
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 px-5 py-4 text-sm">
-            <dt className="text-muted">Server-rendered text</dt>
+            <dt className="text-muted">{t("so.ssr")}</dt>
             <dd className="text-text">
-              {s.html.serverRenderedContent ? "yes" : "little or none (client-rendered)"}
+              {s.html.serverRenderedContent ? t("common.yes") : t("so.ssrNone")}
             </dd>
-            <dt className="text-muted">Scripts</dt>
+            <dt className="text-muted">{t("so.scripts")}</dt>
             <dd className="text-text">
-              {s.html.externalScripts} external · {s.html.inlineScripts} inline
+              {t("so.extInline", { e: s.html.externalScripts, i: s.html.inlineScripts })}
             </dd>
-            <dt className="text-muted">Stylesheets</dt>
+            <dt className="text-muted">{t("so.stylesheets")}</dt>
             <dd className="text-text">
-              {s.html.externalStylesheets} external · {s.html.inlineStyles} inline
+              {t("so.extInline", { e: s.html.externalStylesheets, i: s.html.inlineStyles })}
             </dd>
-            <dt className="text-muted">Generator meta</dt>
-            <dd className="text-text">{s.html.generatorMeta.join(", ") || "none"}</dd>
-            <dt className="text-muted">data-* prefixes</dt>
+            <dt className="text-muted">{t("so.generatorMeta")}</dt>
+            <dd className="text-text">{s.html.generatorMeta.join(", ") || t("common.none")}</dd>
+            <dt className="text-muted">{t("so.dataPrefixes")}</dt>
             <dd className="text-text">
               {s.html.dataAttributePrefixes.map((d) => `${d.prefix} (${d.count})`).join(", ") ||
-                "none"}
+                t("common.none")}
             </dd>
           </dl>
           {s.html.notableComments.length > 0 && (
             <div className="border-t border-border px-5 py-3">
-              <div className="mb-2 text-xs text-muted">
-                HTML comments (truncated, secrets redacted)
-              </div>
+              <div className="mb-2 text-xs text-muted">{t("so.htmlComments")}</div>
               <ul className="space-y-1">
                 {s.html.notableComments.map((c, i) => (
                   <li key={i}>
@@ -730,30 +777,33 @@ export function SourceSection({ report }: { report: Report }) {
           )}
         </Card>
         <Card>
-          <CardHeader title="CSS observations" />
+          <CardHeader title={t("so.cssObs")} />
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 px-5 py-4 text-sm">
-            <dt className="text-muted">Custom properties</dt>
+            <dt className="text-muted">{t("so.customProps")}</dt>
             <dd className="text-text">{s.css.customPropertyCount}</dd>
-            <dt className="text-muted">Breakpoints</dt>
+            <dt className="text-muted">{t("so.breakpoints")}</dt>
             <dd className="text-text">
-              {s.css.breakpointsPx.map((b) => `${b}px`).join(", ") || "none"}
+              {s.css.breakpointsPx.map((b) => `${b}px`).join(", ") || t("common.none")}
             </dd>
             <dt className="text-muted">@font-face</dt>
-            <dd className="text-text">{s.css.fontFaces.join(", ") || "none"}</dd>
-            <dt className="text-muted">Parse errors</dt>
+            <dd className="text-text">{s.css.fontFaces.join(", ") || t("common.none")}</dd>
+            <dt className="text-muted">{t("so.parseErrors")}</dt>
             <dd className="text-text">{s.css.parseErrors}</dd>
           </dl>
           <div className="border-t border-border px-5 py-3">
-            <div className="mb-2 text-xs text-muted">Class naming conventions (rendered DOM)</div>
+            <div className="mb-2 text-xs text-muted">{t("so.naming")}</div>
             {s.css.namingConventions.length === 0 ? (
-              <p className="text-sm text-muted">No dominant convention detected.</p>
+              <p className="text-sm text-muted">{t("so.namingNone")}</p>
             ) : (
               <ul className="space-y-2 text-sm">
                 {s.css.namingConventions.map((n) => (
                   <li key={n.convention}>
                     <span className="text-text">{n.convention}</span>{" "}
                     <span className="text-muted">
-                      — {Math.round(n.share * 100)}% of class tokens, {n.confidence}
+                      {t("so.namingShare", {
+                        p: Math.round(n.share * 100),
+                        c: tEnum("confidence", n.confidence),
+                      })}
                     </span>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {n.examples.map((e) => (
@@ -767,19 +817,19 @@ export function SourceSection({ report }: { report: Report }) {
           </div>
         </Card>
         <Card>
-          <CardHeader
-            title="JavaScript observations"
-            description="Parsed with acorn as data; never executed outside the isolated browser."
-          />
+          <CardHeader title={t("so.jsObs")} description={t("so.jsObs.desc")} />
           <div className="space-y-3 px-5 py-4 text-sm">
             <div className="text-muted">
-              {s.js.moduleScripts} ES module(s) · {s.js.parseFailures} parse failure(s) ·{" "}
-              {(s.js.totalBytes / 1024).toFixed(0)} KB total
+              {t("so.jsSummary", {
+                m: s.js.moduleScripts,
+                f: s.js.parseFailures,
+                kb: (s.js.totalBytes / 1024).toFixed(0),
+              })}
             </div>
             <div>
-              <div className="mb-1 text-xs text-muted">Bundler signatures</div>
+              <div className="mb-1 text-xs text-muted">{t("so.bundlers")}</div>
               {s.js.bundlerSignatures.length === 0 ? (
-                <span className="text-muted">none detected</span>
+                <span className="text-muted">{t("so.noneDetected")}</span>
               ) : (
                 s.js.bundlerSignatures.map((b) => (
                   <Badge key={b.name} className="mr-1">
@@ -789,9 +839,9 @@ export function SourceSection({ report }: { report: Report }) {
               )}
             </div>
             <div>
-              <div className="mb-1 text-xs text-muted">Library banners</div>
+              <div className="mb-1 text-xs text-muted">{t("so.banners")}</div>
               {s.js.libraryBanners.length === 0 ? (
-                <span className="text-muted">none preserved</span>
+                <span className="text-muted">{t("so.nonePreserved")}</span>
               ) : (
                 <ul className="space-y-1">
                   {s.js.libraryBanners.slice(0, 8).map((b, i) => (
@@ -804,13 +854,13 @@ export function SourceSection({ report }: { report: Report }) {
             </div>
             {s.js.sourceMaps.length > 0 && (
               <div>
-                <div className="mb-1 text-xs text-muted">
-                  Source maps (paths only; contents are never stored)
-                </div>
+                <div className="mb-1 text-xs text-muted">{t("so.sourceMapsNote")}</div>
                 <ul className="space-y-1 text-xs">
                   {s.js.sourceMaps.map((m, i) => (
                     <li key={i}>
-                      <Badge tone={m.status === "parsed" ? "accent" : "neutral"}>{m.status}</Badge>{" "}
+                      <Badge tone={m.status === "parsed" ? "accent" : "neutral"}>
+                        {tEnum("smap", m.status)}
+                      </Badge>{" "}
                       <span className="break-all font-mono text-faint">{m.mapUrl}</span>
                       {m.topDirectories && (
                         <div className="mt-1 text-muted">
@@ -828,13 +878,10 @@ export function SourceSection({ report }: { report: Report }) {
           </div>
         </Card>
         <Card>
-          <CardHeader
-            title="Source ↔ runtime correlation"
-            description="Whether source-level evidence agrees with what the browser rendered."
-          />
+          <CardHeader title={t("so.correlation")} description={t("so.correlation.desc")} />
           {s.correlations.length === 0 ? (
             <div className="p-5">
-              <Empty>No correlations computed.</Empty>
+              <Empty>{t("so.correlation.none")}</Empty>
             </div>
           ) : (
             <ul className="divide-y divide-border">
@@ -851,13 +898,15 @@ export function SourceSection({ report }: { report: Report }) {
                             : "outline"
                       }
                     >
-                      {c.status}
+                      {tEnum("corr", c.status)}
                     </Badge>
                   </div>
                   <div className="mt-1 break-all text-xs text-muted">
-                    Source: {c.sourceEvidence}
+                    {t("so.sourceEv", { v: c.sourceEvidence })}
                   </div>
-                  <div className="break-all text-xs text-muted">Runtime: {c.runtimeEvidence}</div>
+                  <div className="break-all text-xs text-muted">
+                    {t("so.runtimeEv", { v: c.runtimeEvidence })}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -866,7 +915,7 @@ export function SourceSection({ report }: { report: Report }) {
       </div>
       {s.notInspected.length > 0 && (
         <Card>
-          <CardHeader title="Files that could not be inspected" />
+          <CardHeader title={t("so.notInspectedFiles")} />
           <ul className="divide-y divide-border">
             {s.notInspected.map((n, i) => (
               <li key={i} className="flex flex-col gap-1 px-5 py-2 text-xs sm:flex-row sm:gap-4">
@@ -878,16 +927,12 @@ export function SourceSection({ report }: { report: Report }) {
         </Card>
       )}
       <Card>
-        <CardHeader title="Limitations of this source analysis" />
+        <CardHeader title={t("so.limitations")} />
         <ul className="list-disc space-y-1 px-9 py-4 text-sm text-muted">
           {s.limitations.map((l) => (
             <li key={l}>{l}</li>
           ))}
-          {s.redactedSecrets > 0 && (
-            <li>
-              {s.redactedSecrets} value(s) that looked like credentials were redacted from snippets.
-            </li>
-          )}
+          {s.redactedSecrets > 0 && <li>{t("so.redacted", { n: s.redactedSecrets })}</li>}
         </ul>
       </Card>
     </div>
@@ -897,17 +942,26 @@ export function SourceSection({ report }: { report: Report }) {
 // ---------------- Accessibility ----------------
 
 export function AccessibilitySection({ report }: { report: Report }) {
+  const { t, tEnum } = useI18n();
   const a = report.accessibility;
   return (
     <div className="space-y-5">
       <Callout>
-        {a.note} Checks run: {a.checksRun.join(", ")}.
+        {t("a11y.note")} {t("a11y.checksRun", { checks: a.checksRun.join(", ") })}
       </Callout>
       {a.issues.length === 0 ? (
-        <Empty>The automated checks found no issues. Manual testing is still required.</Empty>
+        <Empty>{t("a11y.none")}</Empty>
       ) : (
         <Card>
-          <Table head={["Severity", "Check", "Observation", "Count", ""]}>
+          <Table
+            head={[
+              t("a11y.head.severity"),
+              t("a11y.head.check"),
+              t("a11y.head.observation"),
+              t("a11y.head.count"),
+              "",
+            ]}
+          >
             {a.issues.map((i, k) => (
               <tr key={k}>
                 <Td>
@@ -920,7 +974,7 @@ export function AccessibilitySection({ report }: { report: Report }) {
                           : "neutral"
                     }
                   >
-                    {i.severity}
+                    {tEnum("severity", i.severity)}
                   </Badge>
                 </Td>
                 <Td className="text-muted">{i.check}</Td>
@@ -941,17 +995,25 @@ export function AccessibilitySection({ report }: { report: Report }) {
 // ---------------- Assets ----------------
 
 export function AssetsSection({ report }: { report: Report }) {
+  const { t } = useI18n();
   const a = report.assets;
   return (
     <div className="space-y-5">
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader
-            title={`Images (${a.images.length})`}
-            description="Metadata only; images are not downloaded or redistributed."
+            title={t("as.images", { n: a.images.length })}
+            description={t("as.images.desc")}
           />
           <div className="max-h-96 overflow-y-auto">
-            <Table head={["Source", "Natural", "Rendered", "Alt"]}>
+            <Table
+              head={[
+                t("as.head.source"),
+                t("as.head.natural"),
+                t("as.head.rendered"),
+                t("as.head.alt"),
+              ]}
+            >
               {a.images.map((img, i) => (
                 <tr key={i}>
                   <Td className="max-w-[16rem]">
@@ -965,23 +1027,33 @@ export function AssetsSection({ report }: { report: Report }) {
                   <Td className="tabular-nums text-xs">
                     {img.renderedWidth}×{img.renderedHeight}
                   </Td>
-                  <Td>{img.hasAlt ? <Badge>yes</Badge> : <Badge tone="warn">missing</Badge>}</Td>
+                  <Td>
+                    {img.hasAlt ? (
+                      <Badge>{t("common.yes")}</Badge>
+                    ) : (
+                      <Badge tone="warn">{t("as.missing")}</Badge>
+                    )}
+                  </Td>
                 </tr>
               ))}
             </Table>
           </div>
         </Card>
         <Card>
-          <CardHeader
-            title="Fonts loaded"
-            description="From document.fonts in the rendered page."
-          />
+          <CardHeader title={t("as.fonts")} description={t("as.fonts.desc")} />
           {a.fonts.length === 0 ? (
             <div className="p-5">
-              <Empty>No web fonts loaded.</Empty>
+              <Empty>{t("as.fonts.none")}</Empty>
             </div>
           ) : (
-            <Table head={["Family", "Weight", "Style", "Status"]}>
+            <Table
+              head={[
+                t("as.head.family"),
+                t("as.head.weight"),
+                t("as.head.style"),
+                t("as.head.status"),
+              ]}
+            >
               {a.fonts.map((f, i) => (
                 <tr key={i}>
                   <Td>{f.family}</Td>
@@ -997,10 +1069,18 @@ export function AssetsSection({ report }: { report: Report }) {
       {(["scripts", "stylesheets"] as const).map((kind) => (
         <Card key={kind}>
           <CardHeader
-            title={`${kind === "scripts" ? "Scripts" : "Stylesheets"} (${a[kind].length})`}
+            title={t(kind === "scripts" ? "as.scripts" : "as.stylesheets", { n: a[kind].length })}
           />
           <div className="max-h-96 overflow-y-auto">
-            <Table head={["URL", "Status", "Size", "Party", "Inspected"]}>
+            <Table
+              head={[
+                t("as.head.url"),
+                t("as.head.status"),
+                t("as.head.size"),
+                t("as.head.party"),
+                t("as.head.inspected"),
+              ]}
+            >
               {a[kind].map((r, i) => (
                 <tr key={i}>
                   <Td className="max-w-[28rem]">
@@ -1014,13 +1094,13 @@ export function AssetsSection({ report }: { report: Report }) {
                   </Td>
                   <Td>
                     {r.thirdParty ? (
-                      <Badge tone="outline">third-party</Badge>
+                      <Badge tone="outline">{t("as.thirdParty")}</Badge>
                     ) : (
-                      <Badge>first-party</Badge>
+                      <Badge>{t("as.firstParty")}</Badge>
                     )}
                   </Td>
                   <Td className="text-xs text-muted">
-                    {r.inspected ? "yes" : (r.notInspectedReason ?? "no")}
+                    {r.inspected ? t("common.yes") : (r.notInspectedReason ?? t("common.no"))}
                   </Td>
                 </tr>
               ))}
@@ -1029,10 +1109,7 @@ export function AssetsSection({ report }: { report: Report }) {
         </Card>
       ))}
       <Card className="p-5 text-sm">
-        <div className="text-muted">
-          Third-party domains contacted ({a.thirdPartyDomains.length}). First/third-party is
-          approximated by the last two labels of the hostname.
-        </div>
+        <div className="text-muted">{t("as.domains", { n: a.thirdPartyDomains.length })}</div>
         <div className="mt-2 flex flex-wrap gap-1">
           {a.thirdPartyDomains.map((d) => (
             <Mono key={d}>{d}</Mono>
@@ -1045,33 +1122,7 @@ export function AssetsSection({ report }: { report: Report }) {
 
 // ---------------- Export ----------------
 
-const EXPORTS = [
-  {
-    format: "json",
-    title: "JSON report",
-    text: "The complete versioned report: measurements, inferred findings, evidence, warnings and detector versions.",
-  },
-  {
-    format: "css",
-    title: "CSS variables",
-    text: "Custom properties with values measured from the page, plus the site's own declared properties.",
-  },
-  {
-    format: "tailwind",
-    title: "Tailwind v4 theme",
-    text: "An @theme block for Tailwind CSS v4 (colours, fonts, text sizes, radii, shadows).",
-  },
-  {
-    format: "markdown",
-    title: "Markdown report",
-    text: "A readable summary including AI-origin evidence and limitations.",
-  },
-  {
-    format: "evidence",
-    title: "Evidence bundle (.zip)",
-    text: "The JSON report and WebDNA's screenshots. No third-party page assets are included.",
-  },
-];
+const EXPORTS = ["json", "css", "tailwind", "markdown", "evidence"] as const;
 
 export function ExportSection({
   scanId,
@@ -1080,31 +1131,24 @@ export function ExportSection({
   scanId?: string;
   exportHref?: (format: string) => string;
 }) {
+  const { t } = useI18n();
   return (
     <div className="space-y-5">
-      {!scanId && (
-        <Callout tone="warn">
-          Exports are generated by the server for real scans. The bundled sample report cannot be
-          exported here.
-        </Callout>
-      )}
+      {!scanId && <Callout tone="warn">{t("ex.sampleNote")}</Callout>}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {EXPORTS.map((e) => (
-          <Card key={e.format} className="flex flex-col p-5">
-            <h3 className="text-sm font-semibold text-text">{e.title}</h3>
-            <p className="mt-1 flex-1 text-sm text-muted">{e.text}</p>
+        {EXPORTS.map((format) => (
+          <Card key={format} className="flex flex-col p-5">
+            <h3 className="text-sm font-semibold text-text">{t(`ex.${format}.title`)}</h3>
+            <p className="mt-1 flex-1 text-sm text-muted">{t(`ex.${format}.text`)}</p>
             {scanId && exportHref && (
-              <LinkButton className="mt-4 self-start" href={exportHref(e.format)} download>
-                <Download size={14} /> Download
+              <LinkButton className="mt-4 self-start" href={exportHref(format)} download>
+                <Download size={14} /> {t("common.download")}
               </LinkButton>
             )}
           </Card>
         ))}
       </div>
-      <p className="text-xs text-faint">
-        Screenshots show a third-party website. Check its terms and any personal information before
-        sharing them.
-      </p>
+      <p className="text-xs text-faint">{t("ex.footer")}</p>
     </div>
   );
 }
