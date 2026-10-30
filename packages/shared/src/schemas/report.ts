@@ -299,6 +299,76 @@ export const ReportWarningSchema = z.object({
 });
 export type ReportWarning = z.infer<typeof ReportWarningSchema>;
 
+export const OutlineKindSchema = z.enum([
+  "header",
+  "hero",
+  "card_grid",
+  "media",
+  "form",
+  "footer",
+  "content",
+]);
+export type OutlineKind = z.infer<typeof OutlineKindSchema>;
+
+/**
+ * One top-level block of the page, in document order. Everything is measured except
+ * `kind`, which is a heuristic label. Text is described by size only (word counts),
+ * never copied.
+ */
+export const OutlineSectionSchema = z.object({
+  index: z.number(),
+  selector: z.string(),
+  tag: z.string(),
+  kind: OutlineKindSchema,
+  kindBasis: z.string(),
+  desktop: z.object({
+    y: z.number(),
+    height: z.number(),
+    width: z.number(),
+    background: z.string().optional(),
+    backgroundImage: z.boolean(),
+    sticky: z.boolean(),
+    layout: z.string(),
+    columns: z.number().optional(),
+    maxContentWidth: z.number().optional(),
+    paddingY: z.number().optional(),
+  }),
+  mobile: z
+    .object({
+      visible: z.boolean(),
+      height: z.number(),
+      layout: z.string(),
+      columns: z.number().optional(),
+    })
+    .optional(),
+  content: z.object({
+    headings: z.array(
+      z.object({ level: z.number(), sizePx: z.number(), weight: z.string(), words: z.number() }),
+    ),
+    paragraphs: z.number(),
+    paragraphWords: z.number(),
+    links: z.number(),
+    buttons: z.number(),
+    images: z.number(),
+    inputs: z.number(),
+    forms: z.number(),
+    listItems: z.number(),
+  }),
+  cards: z
+    .object({
+      count: z.number(),
+      columnsDesktop: z.number().optional(),
+      columnsMobile: z.number().optional(),
+      background: z.string().optional(),
+      radius: z.string().optional(),
+      shadow: z.boolean(),
+      border: z.boolean(),
+      perCard: z.object({ headings: z.number(), paragraphs: z.number(), images: z.number() }),
+    })
+    .optional(),
+});
+export type OutlineSection = z.infer<typeof OutlineSectionSchema>;
+
 export const ReportSchema = z.object({
   schemaVersion: z.string(),
   generator: z.object({ name: z.literal("WebDNA"), version: z.string() }),
@@ -331,6 +401,8 @@ export const ReportSchema = z.object({
   viewports: z.array(ViewportObservationSchema),
   design: DesignSystemSchema,
   layout: LayoutSchema,
+  /** Section-by-section page blueprint (schema 1.1.0+; absent in older reports). */
+  outline: z.array(OutlineSectionSchema).optional(),
   components: z.array(ComponentPatternSchema),
   responsive: z.object({
     changes: z.array(ResponsiveChangeSchema),

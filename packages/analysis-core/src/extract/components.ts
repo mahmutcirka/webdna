@@ -9,16 +9,16 @@ import type { RawElement } from "../browser/extract-script.js";
 import { parseColor, toHex } from "./color.js";
 import { MAX_SAMPLES, ValueCounter, px, ref, visibleStyled, type ViewportData } from "./common.js";
 
-type Styled = RawElement & { s: NonNullable<RawElement["s"]> };
+export type Styled = RawElement & { s: NonNullable<RawElement["s"]> };
 
-function hasBg(el: Styled): boolean {
+export function hasBg(el: Styled): boolean {
   const c = parseColor(el.s.bg);
   return !!c && c.a > 0;
 }
-function hasBorder(el: Styled): boolean {
+export function hasBorder(el: Styled): boolean {
   return el.s.bs !== "none" && el.s.bw.split(" ").some((v) => (px(v) ?? 0) > 0);
 }
-function hasShadow(el: Styled): boolean {
+export function hasShadow(el: Styled): boolean {
   return !!el.s.sh && el.s.sh !== "none";
 }
 function radius(el: Styled): number {
@@ -28,12 +28,12 @@ function padX(el: Styled): number {
   const parts = el.s.pad.split(" ");
   return Math.max(px(parts[1]) ?? 0, px(parts[3]) ?? 0);
 }
-function bgHex(el: Styled): string {
+export function bgHex(el: Styled): string {
   const c = parseColor(el.s.bg);
   return c ? toHex(c) : "none";
 }
 
-function isButtonLike(el: Styled): boolean {
+export function isButtonLike(el: Styled): boolean {
   if (el.tag === "button" || el.role === "button") return true;
   if (el.tag === "input" && ["button", "submit", "reset"].includes(el.a?.type ?? "")) return true;
   if (el.tag !== "a") return false;
@@ -129,6 +129,9 @@ export function detectComponents(vp: ViewportData): ComponentPattern[] {
         padding: el.s.pad,
         fontSize: el.s.fs,
         fontWeight: el.s.fw,
+        border: hasBorder(el)
+          ? `${el.s.bw.split(" ")[0]} ${el.s.bs} ${toHex(parseColor(el.s.bc) ?? { r: 0, g: 0, b: 0, a: 1 })}`
+          : "none",
       };
       buttons.add(`${bgHex(el)} · radius ${el.s.br} · ${el.s.fs}`, styles, el, vp.id);
     } else if (el.tag === "a") {

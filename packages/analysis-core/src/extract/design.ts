@@ -206,6 +206,32 @@ function inferRoles(
     }
   }
 
+  // Heading text colour: the colour carrying the most characters in h1–h3.
+  if (desktop) {
+    const byColor = new Map<string, { chars: number; evidence: ElementRef[] }>();
+    for (const el of desktop.raw.elements) {
+      if (!visibleStyled(el) || !/^h[1-3]$/.test(el.tag)) continue;
+      const c = parseColor(el.s.color);
+      if (!c || c.a === 0) continue;
+      const hex = toHex(c);
+      const entry = byColor.get(hex) ?? { chars: 0, evidence: [] };
+      entry.chars += Math.max(1, el.text);
+      if (entry.evidence.length < MAX_SAMPLES) entry.evidence.push(ref(el, desktop.id));
+      byColor.set(hex, entry);
+    }
+    const best = [...byColor.entries()].sort((a, b) => b[1].chars - a[1].chars)[0];
+    if (best) {
+      roles.push({
+        role: "heading text",
+        kind: "color",
+        value: best[0],
+        confidence: byColor.size === 1 ? "high" : "medium",
+        basis: "Colour of most heading (h1–h3) text.",
+        evidence: best[1].evidence,
+      });
+    }
+  }
+
   const textColors = colors
     .filter((c) => (c.properties.color ?? 0) > 0)
     .sort((a, b) => b.textChars - a.textChars);

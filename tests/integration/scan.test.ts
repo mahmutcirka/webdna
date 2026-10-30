@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { ReportSchema, type Report } from "@webdna/shared";
+import { ReportSchema, buildRebuildPrompt, type Report } from "@webdna/shared";
 import { createDefaultRegistry } from "@webdna/detectors";
 import {
   NetworkPolicy,
@@ -116,6 +116,21 @@ describe("full browser scan of a local fixture", () => {
     expect(d.roles.find((r) => r.role === "accent / primary action")?.value).toBe("#2f6f4e");
   });
 
+  it("outlines the page section by section", () => {
+    const outline = result.report.outline!;
+    expect(outline.map((s) => s.kind)).toEqual([
+      "header",
+      "hero",
+      "card_grid",
+      "media",
+      "form",
+      "footer",
+    ]);
+    expect(outline[1]!.content.headings[0]).toMatchObject({ level: 1, sizePx: 48 });
+    expect(outline[2]!.cards).toMatchObject({ count: 3, columnsDesktop: 3, columnsMobile: 1 });
+    expect(JSON.stringify(outline)).not.toContain("Northwind");
+  });
+
   it("detects component patterns", () => {
     const kinds = new Set(result.report.components.map((c) => c.kind));
     for (const k of [
@@ -196,6 +211,10 @@ describe("full browser scan of a local fixture", () => {
       "desktop-viewport.jpg": readFileSync(path.join(result.dir, "desktop-viewport.jpg")),
     });
     expect(zip.subarray(0, 2)).toEqual(new Uint8Array([0x50, 0x4b])); // "PK"
+    const prompt = buildRebuildPrompt(r, { stack: "nextjs-tailwind", language: "en" });
+    expect(prompt).toContain("--color-accent: #2f6f4e;");
+    expect(prompt).toMatch(/### 5.3 Card grid/);
+    expect(prompt).not.toContain("Northwind");
   });
 
   it("compares two scans of the same page", async () => {

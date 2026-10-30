@@ -1,16 +1,16 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "generator": {
     "name": "WebDNA",
     "version": "0.1.0"
   },
   "scanId": "sample-basic-landing",
-  "createdAt": "2026-10-29T22:09:48.080Z",
-  "durationMs": 3336,
+  "createdAt": "2026-10-30T19:09:27.414Z",
+  "durationMs": 3364,
   "target": {
-    "inputUrl": "http://127.0.0.1:53279/",
-    "normalizedUrl": "http://127.0.0.1:53279/",
-    "finalUrl": "http://127.0.0.1:53279/",
+    "inputUrl": "http://127.0.0.1:51708/",
+    "normalizedUrl": "http://127.0.0.1:51708/",
+    "finalUrl": "http://127.0.0.1:51708/",
     "domain": "127.0.0.1",
     "redirectChain": [],
     "statusCode": 200,
@@ -24,7 +24,7 @@
     "viewportMeta": "width=device-width, initial-scale=1",
     "generator": [],
     "openGraph": {},
-    "favicon": "http://127.0.0.1:53279/favicon.svg"
+    "favicon": "http://127.0.0.1:51708/favicon.svg"
   },
   "viewports": [
     {
@@ -45,7 +45,7 @@
       },
       "consoleErrors": [],
       "failedRequests": [],
-      "loadMs": 897,
+      "loadMs": 918,
       "readiness": [
         "domcontentloaded",
         "load",
@@ -72,7 +72,7 @@
       },
       "consoleErrors": [],
       "failedRequests": [],
-      "loadMs": 843,
+      "loadMs": 833,
       "readiness": [
         "domcontentloaded",
         "load",
@@ -99,7 +99,7 @@
       },
       "consoleErrors": [],
       "failedRequests": [],
-      "loadMs": 911,
+      "loadMs": 898,
       "readiness": [
         "domcontentloaded",
         "load",
@@ -1691,31 +1691,31 @@
         "name": "--nw-ink",
         "value": "#1f2933",
         "selector": ":root",
-        "source": "http://127.0.0.1:53279/styles.css"
+        "source": "http://127.0.0.1:51708/styles.css"
       },
       {
         "name": "--nw-paper",
         "value": "#fbfaf7",
         "selector": ":root",
-        "source": "http://127.0.0.1:53279/styles.css"
+        "source": "http://127.0.0.1:51708/styles.css"
       },
       {
         "name": "--nw-accent",
         "value": "#2f6f4e",
         "selector": ":root",
-        "source": "http://127.0.0.1:53279/styles.css"
+        "source": "http://127.0.0.1:51708/styles.css"
       },
       {
         "name": "--nw-muted",
         "value": "#616e7c",
         "selector": ":root",
-        "source": "http://127.0.0.1:53279/styles.css"
+        "source": "http://127.0.0.1:51708/styles.css"
       },
       {
         "name": "--nw-radius",
         "value": "8px",
         "selector": ":root",
-        "source": "http://127.0.0.1:53279/styles.css"
+        "source": "http://127.0.0.1:51708/styles.css"
       }
     ],
     "roles": [
@@ -1734,6 +1734,55 @@
               "y": 0,
               "w": 1440,
               "h": 1644
+            }
+          }
+        ]
+      },
+      {
+        "role": "heading text",
+        "kind": "color",
+        "value": "#1f2933",
+        "confidence": "high",
+        "basis": "Colour of most heading (h1–h3) text.",
+        "evidence": [
+          {
+            "selector": "body > main > section:nth-of-type(1) > h1",
+            "viewport": "desktop",
+            "rect": {
+              "x": 192,
+              "y": 159,
+              "w": 1056,
+              "h": 53
+            }
+          },
+          {
+            "selector": "body > main > section:nth-of-type(2) > h2",
+            "viewport": "desktop",
+            "rect": {
+              "x": 192,
+              "y": 452,
+              "w": 1056,
+              "h": 48
+            }
+          },
+          {
+            "selector": "body > main > section:nth-of-type(2) > div > article:nth-of-type(1) > h3",
+            "viewport": "desktop",
+            "rect": {
+              "x": 217,
+              "y": 549,
+              "w": 286,
+              "h": 30
+            }
+          },
+          {
+            "selector": "body > main > section:nth-of-type(2) > div > article:nth-of-type(2) > h3",
+            "viewport": "desktop",
+            "rect": {
+              "x": 577,
+              "y": 549,
+              "w": 286,
+              "h": 30
             }
           }
         ]
@@ -2098,6 +2147,261 @@
       }
     ]
   },
+  "outline": [
+    {
+      "index": 0,
+      "selector": "body > header",
+      "tag": "header",
+      "kind": "header",
+      "kindBasis": "<header> / role=banner element",
+      "desktop": {
+        "y": 0,
+        "height": 63,
+        "width": 1440,
+        "backgroundImage": false,
+        "sticky": false,
+        "layout": "flex row",
+        "paddingY": 16
+      },
+      "mobile": {
+        "visible": true,
+        "height": 58,
+        "layout": "flex row"
+      },
+      "content": {
+        "headings": [],
+        "paragraphs": 0,
+        "paragraphWords": 0,
+        "links": 5,
+        "buttons": 0,
+        "images": 0,
+        "inputs": 0,
+        "forms": 0,
+        "listItems": 0
+      }
+    },
+    {
+      "index": 1,
+      "selector": "body > main > section:nth-of-type(1)",
+      "tag": "section",
+      "kind": "hero",
+      "kindBasis": "first block near the top with the main (h1 / largest) heading",
+      "desktop": {
+        "y": 63,
+        "height": 341,
+        "width": 1056,
+        "backgroundImage": false,
+        "sticky": false,
+        "layout": "stacked blocks",
+        "paddingY": 96
+      },
+      "mobile": {
+        "visible": true,
+        "height": 374,
+        "layout": "stacked blocks"
+      },
+      "content": {
+        "headings": [
+          {
+            "level": 1,
+            "sizePx": 48,
+            "weight": "700",
+            "words": 6
+          }
+        ],
+        "paragraphs": 1,
+        "paragraphWords": 11,
+        "links": 0,
+        "buttons": 2,
+        "images": 0,
+        "inputs": 0,
+        "forms": 0,
+        "listItems": 0
+      }
+    },
+    {
+      "index": 2,
+      "selector": "body > main > section:nth-of-type(2)",
+      "tag": "section",
+      "kind": "card_grid",
+      "kindBasis": "3 repeated card-like siblings",
+      "desktop": {
+        "y": 404,
+        "height": 339,
+        "width": 1056,
+        "backgroundImage": false,
+        "sticky": false,
+        "layout": "stacked blocks",
+        "paddingY": 48
+      },
+      "mobile": {
+        "visible": true,
+        "height": 755,
+        "layout": "stacked blocks"
+      },
+      "content": {
+        "headings": [
+          {
+            "level": 2,
+            "sizePx": 32,
+            "weight": "700",
+            "words": 4
+          },
+          {
+            "level": 3,
+            "sizePx": 20,
+            "weight": "700",
+            "words": 2
+          },
+          {
+            "level": 3,
+            "sizePx": 20,
+            "weight": "700",
+            "words": 2
+          },
+          {
+            "level": 3,
+            "sizePx": 20,
+            "weight": "700",
+            "words": 3
+          }
+        ],
+        "paragraphs": 3,
+        "paragraphWords": 26,
+        "links": 0,
+        "buttons": 0,
+        "images": 0,
+        "inputs": 0,
+        "forms": 0,
+        "listItems": 0
+      },
+      "cards": {
+        "count": 3,
+        "columnsDesktop": 3,
+        "columnsMobile": 1,
+        "background": "#ffffff",
+        "radius": "12px",
+        "shadow": true,
+        "border": true,
+        "perCard": {
+          "headings": 1,
+          "paragraphs": 1,
+          "images": 0
+        }
+      }
+    },
+    {
+      "index": 3,
+      "selector": "body > main > section:nth-of-type(3)",
+      "tag": "section",
+      "kind": "media",
+      "kindBasis": "mostly images",
+      "desktop": {
+        "y": 743,
+        "height": 468,
+        "width": 1056,
+        "backgroundImage": false,
+        "sticky": false,
+        "layout": "stacked blocks",
+        "paddingY": 48
+      },
+      "mobile": {
+        "visible": true,
+        "height": 347,
+        "layout": "stacked blocks"
+      },
+      "content": {
+        "headings": [
+          {
+            "level": 2,
+            "sizePx": 32,
+            "weight": "700",
+            "words": 2
+          }
+        ],
+        "paragraphs": 0,
+        "paragraphWords": 0,
+        "links": 0,
+        "buttons": 0,
+        "images": 1,
+        "inputs": 0,
+        "forms": 0,
+        "listItems": 0
+      }
+    },
+    {
+      "index": 4,
+      "selector": "body > main > section:nth-of-type(4)",
+      "tag": "section",
+      "kind": "form",
+      "kindBasis": "contains a form or input fields",
+      "desktop": {
+        "y": 1211,
+        "height": 312,
+        "width": 1056,
+        "backgroundImage": false,
+        "sticky": false,
+        "layout": "stacked blocks",
+        "paddingY": 48
+      },
+      "mobile": {
+        "visible": true,
+        "height": 364,
+        "layout": "stacked blocks"
+      },
+      "content": {
+        "headings": [
+          {
+            "level": 2,
+            "sizePx": 32,
+            "weight": "700",
+            "words": 3
+          }
+        ],
+        "paragraphs": 1,
+        "paragraphWords": 7,
+        "links": 0,
+        "buttons": 1,
+        "images": 0,
+        "inputs": 1,
+        "forms": 1,
+        "listItems": 0
+      }
+    },
+    {
+      "index": 5,
+      "selector": "body > footer",
+      "tag": "footer",
+      "kind": "footer",
+      "kindBasis": "<footer> / role=contentinfo element",
+      "desktop": {
+        "y": 1523,
+        "height": 121,
+        "width": 1440,
+        "backgroundImage": false,
+        "sticky": false,
+        "layout": "stacked blocks",
+        "maxContentWidth": 1376,
+        "paddingY": 32
+      },
+      "mobile": {
+        "visible": true,
+        "height": 121,
+        "layout": "stacked blocks"
+      },
+      "content": {
+        "headings": [],
+        "paragraphs": 1,
+        "paragraphWords": 5,
+        "links": 0,
+        "buttons": 0,
+        "images": 0,
+        "inputs": 0,
+        "forms": 0,
+        "listItems": 0
+      }
+    }
+  ],
   "components": [
     {
       "kind": "header",
@@ -2157,7 +2461,8 @@
         "radius": "8px",
         "padding": "12px 24px 12px 24px",
         "fontSize": "16px",
-        "fontWeight": "400"
+        "fontWeight": "400",
+        "border": "1px solid #00000000"
       },
       "examples": [
         {
@@ -2194,7 +2499,8 @@
         "radius": "8px",
         "padding": "12px 24px 12px 24px",
         "fontSize": "16px",
-        "fontWeight": "400"
+        "fontWeight": "400",
+        "border": "1px solid #2f6f4e"
       },
       "examples": [
         {
@@ -2567,7 +2873,7 @@
   "assets": {
     "images": [
       {
-        "src": "http://127.0.0.1:53279/table.svg",
+        "src": "http://127.0.0.1:51708/table.svg",
         "naturalWidth": 600,
         "naturalHeight": 300,
         "renderedWidth": 600,
@@ -2580,7 +2886,7 @@
     "fonts": [],
     "scripts": [
       {
-        "url": "http://127.0.0.1:53279/app.js",
+        "url": "http://127.0.0.1:51708/app.js",
         "type": "script",
         "status": 200,
         "bytes": 365,
@@ -2590,7 +2896,7 @@
     ],
     "stylesheets": [
       {
-        "url": "http://127.0.0.1:53279/styles.css",
+        "url": "http://127.0.0.1:51708/styles.css",
         "type": "stylesheet",
         "status": 200,
         "bytes": 3329,
@@ -2646,7 +2952,7 @@
       "bundlerSignatures": [],
       "libraryBanners": [
         {
-          "file": "http://127.0.0.1:53279/app.js",
+          "file": "http://127.0.0.1:51708/app.js",
           "banner": "! northwind-fixture v1.0.0 | Apache-2.0 | synthetic WebDNA test file"
         }
       ],

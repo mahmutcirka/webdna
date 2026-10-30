@@ -5,6 +5,7 @@ import { analyzeJs, summarizeSourcePaths } from "../src/source/js.js";
 import { compareViewports } from "../src/responsive/compare.js";
 import { extractDesignSystem } from "../src/extract/design.js";
 import { detectComponents } from "../src/extract/components.js";
+import { extractOutline } from "../src/extract/outline.js";
 import type { RawElement, RawExtraction, RawStyles } from "../src/browser/extract-script.js";
 import type { ViewportData } from "../src/extract/common.js";
 
@@ -314,5 +315,91 @@ describe("design-system extraction", () => {
     const button = comps.find((c) => c.kind === "button")!;
     expect(button.count).toBe(3);
     expect(button.styles.background).toBe("#2f6f4e");
+  });
+});
+
+describe("page outline", () => {
+  const card = (i: number, n: number, y: number, x: number, w: number) => [
+    el(
+      i,
+      5,
+      `#features > div:nth-of-type(${n})`,
+      "div",
+      { bg: "rgb(255, 255, 255)", br: "12px", bw: "1px 1px 1px 1px", bs: "solid" },
+      { y, x, w, h: 160, cls: "card" },
+    ),
+    el(
+      i + 1,
+      i,
+      `#features > div:nth-of-type(${n}) > h3`,
+      "h3",
+      { fs: "20px", fw: "700" },
+      { text: 14, y, h: 30 },
+    ),
+    el(i + 2, i, `#features > div:nth-of-type(${n}) > p`, "p", {}, { text: 60, y: y + 40, h: 48 }),
+  ];
+  const page = (mobile: boolean) => {
+    const w = mobile ? 390 : 1440;
+    const cw = mobile ? 350 : 360;
+    return vp(mobile ? "mobile" : "desktop", w, [
+      el(0, -1, "html", "html", {}, { w, h: 1400 }),
+      el(1, 0, "body", "body", { bg: "rgb(251, 250, 247)" }, { w, h: 1400 }),
+      el(2, 1, "body > header", "header", { d: "flex", pad: "16px 24px 16px 24px" }, { w, h: 64 }),
+      ...[0, 1, 2].map((k) =>
+        el(10 + k, 2, `header > a:nth-of-type(${k + 1})`, "a", {}, { text: 5, w: 60, h: 20 }),
+      ),
+      el(3, 1, "#hero", "section", { pad: "96px 0px 96px 0px" }, { y: 64, w, h: 340 }),
+      el(
+        20,
+        3,
+        "#hero > h1",
+        "h1",
+        { fs: mobile ? "32px" : "48px", fw: "700" },
+        { y: 160, text: 33, h: 56 },
+      ),
+      el(21, 3, "#hero > p", "p", {}, { y: 230, text: 60, h: 48 }),
+      el(
+        5,
+        1,
+        "#features",
+        "section",
+        { d: "grid", gtc: mobile ? "350px" : "360px 360px 360px" },
+        { y: 404, w, h: mobile ? 540 : 260 },
+      ),
+      ...card(30, 1, 420, 0, cw),
+      ...card(33, 2, mobile ? 600 : 420, mobile ? 0 : 380, cw),
+      ...card(36, 3, mobile ? 780 : 420, mobile ? 0 : 760, cw),
+      el(6, 1, "body > footer", "footer", { pad: "32px 0px 32px 0px" }, { y: 1300, w, h: 100 }),
+      el(40, 6, "footer > p", "p", {}, { y: 1330, text: 28, h: 24 }),
+    ]);
+  };
+
+  it("classifies sections in document order with mobile behaviour and card groups", () => {
+    const outline = extractOutline([page(false), page(true)]);
+    expect(outline.map((s) => s.kind)).toEqual(["header", "hero", "card_grid", "footer"]);
+    const hero = outline[1]!;
+    expect(hero.content.headings[0]).toMatchObject({ level: 1, sizePx: 48, weight: "700" });
+    expect(hero.desktop.paddingY).toBe(96);
+    const grid = outline[2]!;
+    expect(grid.desktop.columns).toBe(3);
+    expect(grid.mobile).toMatchObject({ visible: true, columns: 1 });
+    expect(grid.cards).toMatchObject({
+      count: 3,
+      columnsDesktop: 3,
+      columnsMobile: 1,
+      background: "#ffffff",
+      border: true,
+      perCard: { headings: 1, paragraphs: 1 },
+    });
+  });
+
+  it("records text as word counts only", () => {
+    const outline = extractOutline([page(false)]);
+    expect(JSON.stringify(outline)).not.toMatch(/"text"/);
+    expect(outline[1]!.content.paragraphWords).toBe(11);
+  });
+
+  it("returns an empty outline without a body", () => {
+    expect(extractOutline([vp("desktop", 1440, [el(0, -1, "html", "html")])])).toEqual([]);
   });
 });

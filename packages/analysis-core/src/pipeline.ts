@@ -40,6 +40,7 @@ import { ScanFailure } from "./errors.js";
 import { analyzeAccessibility, A11Y_CHECKS } from "./extract/accessibility.js";
 import type { ViewportData } from "./extract/common.js";
 import { analyzeLayout, detectComponents } from "./extract/components.js";
+import { extractOutline } from "./extract/outline.js";
 import { extractDesignSystem } from "./extract/design.js";
 import { breakpointsBetween, compareViewports } from "./responsive/compare.js";
 import { NetworkPolicy } from "./security/policy.js";
@@ -353,6 +354,7 @@ export async function runScan(input: ScanInput): Promise<Report> {
         return {
           source,
           components: detectComponents(primaryData),
+          outline: extractOutline(data),
           layout: analyzeLayout(primaryData),
           accessibility: analyzeAccessibility(data, viewportMeta),
           assets: buildAssets(primaryData, [...loaded.values()], first, target.url.hostname),
@@ -469,6 +471,7 @@ export async function runScan(input: ScanInput): Promise<Report> {
         viewports: observations,
         design,
         layout: structure.layout,
+        outline: structure.outline,
         components: structure.components,
         responsive: {
           changes: responsive.changes,
