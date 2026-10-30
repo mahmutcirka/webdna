@@ -84,6 +84,7 @@ describe("scan lifecycle API", () => {
       ["css", "text/css"],
       ["tailwind", "text/css"],
       ["markdown", "text/markdown"],
+      ["prompt", "text/markdown"],
       ["evidence", "application/zip"],
     ]) {
       const res = await ctx.app.inject({ url: `/api/scans/${id}/export/${format}` });
@@ -91,6 +92,14 @@ describe("scan lifecycle API", () => {
       expect(res.headers["content-type"]).toContain(type);
       expect(res.headers["content-disposition"]).toMatch(/^attachment; filename="webdna-/);
     }
+    const prompt = await ctx.app.inject({
+      url: `/api/scans/${id}/export/prompt?stack=html&lang=tr`,
+    });
+    expect(prompt.headers["content-disposition"]).toMatch(/\.prompt\.md"$/);
+    expect(prompt.body).toContain("Özgünlük kuralları");
+    expect(prompt.body).toContain(":root {");
+    const badStack = await ctx.app.inject({ url: `/api/scans/${id}/export/prompt?stack=php` });
+    expect(badStack.statusCode).toBe(400);
     const cmp = await ctx.app.inject({ url: `/api/compare?a=${id}&b=${id}` });
     expect(cmp.json().comparison.sameTarget).toBe(true);
 

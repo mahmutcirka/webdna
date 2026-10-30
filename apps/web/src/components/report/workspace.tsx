@@ -8,6 +8,7 @@ import { useI18n } from "@/i18n/client";
 import { exportUrl } from "@/lib/api";
 import { Badge, Callout, cx } from "../ui";
 import { AiOriginSection } from "./ai-origin";
+import { PromptSection } from "./prompt";
 import {
   InspectContext,
   InspectorDrawer,
@@ -38,6 +39,7 @@ const TABS = [
   "ai",
   "a11y",
   "assets",
+  "prompt",
   "export",
 ] as const;
 type TabId = (typeof TABS)[number];
@@ -142,6 +144,12 @@ export function ReportWorkspace({
         {tab === "ai" && <AiOriginSection report={report} />}
         {tab === "a11y" && <AccessibilitySection report={report} />}
         {tab === "assets" && <AssetsSection report={report} />}
+        {tab === "prompt" && (
+          <PromptSection
+            report={report}
+            fileBase={`webdna-${report.target.domain.replace(/[^a-z0-9.-]/gi, "_")}${scanId ? `-${scanId.slice(0, 8)}` : ""}`}
+          />
+        )}
         {tab === "export" && (
           <ExportSection
             scanId={scanId}

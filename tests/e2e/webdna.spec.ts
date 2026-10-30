@@ -16,6 +16,7 @@ const TABS = [
   "ai",
   "a11y",
   "assets",
+  "prompt",
   "export",
 ];
 
@@ -129,6 +130,51 @@ test("exports contain the analysed data", async ({ page }) => {
   await page.getByRole("link", { name: "Download" }).first().click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/^webdna-127\.0\.0\.1-[0-9a-f]{8}\.json$/);
+});
+
+test("the AI prompt tab builds an original rebuild brief that can be copied and downloaded", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto(`/scans/${basicScanId}`);
+  await page.waitForLoadState("networkidle");
+  await page.getByRole("button", { name: "AI prompt" }).click();
+  const preview = page.getByTestId("prompt-preview");
+  await expect(preview).toContainText("## 1. Originality rules (non-negotiable)");
+  await expect(preview).toContainText("--color-accent: #2f6f4e;");
+  await expect(preview).toContainText("@theme {");
+  await expect(preview).toContainText("### 5.3 Card grid");
+  await expect(preview).not.toContainText("Northwind");
+
+  await page.getByRole("button", { name: "HTML + CSS" }).click();
+  await expect(preview).toContainText(":root {");
+  await expect(preview).not.toContainText("@theme {");
+
+  await page
+    .getByRole("group", { name: "Prompt language" })
+    .getByRole("button", { name: "Türkçe" })
+    .click();
+  await expect(preview).toContainText("Özgünlük kuralları");
+  // The UI itself stays English.
+  await expect(page.getByRole("button", { name: "Copy prompt" })).toBeVisible();
+
+  await page.getByTestId("prompt-copy").click();
+  await expect(page.getByTestId("prompt-copy")).toHaveText("Copied");
+  // The OS clipboard may convert line endings (Windows: CRLF).
+  const copied = (await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, "\n");
+  expect(copied).toBe(await preview.textContent());
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByTestId("prompt-download").click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(
+    /^webdna-127\.0\.0\.1-[0-9a-f]{8}\.html\.tr\.prompt\.md$/,
+  );
+
+  const api = await page.request.get(`/api/scans/${basicScanId}/export/prompt?stack=html&lang=tr`);
+  expect(api.headers()["content-type"]).toContain("text/markdown");
+  expect(await api.text()).toBe(copied);
 });
 
 // Fonts differ by OS: CI (Linux) failed with 13 px overflow on "/" that Windows did not show.

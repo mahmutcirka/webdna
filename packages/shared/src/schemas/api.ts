@@ -21,7 +21,14 @@ export const ScanListResponseSchema = z.object({
 });
 export type ScanListResponse = z.infer<typeof ScanListResponseSchema>;
 
-export const EXPORT_FORMATS = ["json", "css", "tailwind", "markdown", "evidence"] as const;
+export const EXPORT_FORMATS = [
+  "json",
+  "css",
+  "tailwind",
+  "markdown",
+  "prompt",
+  "evidence",
+] as const;
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];
 
 export const ValueDiffSchema = z.object({

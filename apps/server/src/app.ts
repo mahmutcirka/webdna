@@ -4,6 +4,8 @@ import { ZodError, z } from "zod";
 import {
   CreateScanRequestSchema,
   EXPORT_FORMATS,
+  PROMPT_STACKS,
+  buildRebuildPrompt,
   redactSecrets,
   type ExportFormat,
 } from "@webdna/shared";
@@ -214,6 +216,19 @@ export async function buildApp(options: AppOptions): Promise<WebDnaApp> {
     if (f === "tailwind")
       return send(exportTailwindTheme(report), "text/css; charset=utf-8", "tailwind-theme.css");
     if (f === "markdown") return send(exportMarkdown(report), "text/markdown; charset=utf-8", "md");
+    if (f === "prompt") {
+      const { stack, lang } = z
+        .object({
+          stack: z.enum(PROMPT_STACKS).default("react-tailwind"),
+          lang: z.enum(["en", "tr"]).default("en"),
+        })
+        .parse(req.query);
+      return send(
+        buildRebuildPrompt(report, { stack, language: lang }),
+        "text/markdown; charset=utf-8",
+        "prompt.md",
+      );
+    }
     const shots: Record<string, Uint8Array> = {};
     for (const v of report.viewports) {
       for (const name of [v.screenshots.viewport, v.screenshots.fullPage].filter(

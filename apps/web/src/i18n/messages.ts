@@ -247,6 +247,7 @@ const en = {
   "tab.a11y": "Accessibility",
   "tab.assets": "Assets",
   "tab.export": "Export",
+  "tab.prompt": "AI prompt",
   "ws.compare": "Compare with another scan",
   "ws.sections": "Report sections",
 
@@ -308,6 +309,7 @@ const en = {
   "smap.skipped": "skipped",
   "role.page background": "page background",
   "role.primary text": "primary text",
+  "role.heading text": "heading text",
   "role.secondary text": "secondary text",
   "role.surface": "surface",
   "role.accent / primary action": "accent / primary action",
@@ -568,6 +570,24 @@ const en = {
     "An @theme block for Tailwind CSS v4 (colours, fonts, text sizes, radii, shadows).",
   "ex.markdown.title": "Markdown report",
   "ex.markdown.text": "A readable summary including AI-origin evidence and limitations.",
+  "pr.title": "Rebuild prompt for AI tools",
+  "pr.intro":
+    "A complete build brief generated from this report's measurements: design tokens, a section-by-section blueprint, components, responsive behaviour, accessibility and an acceptance checklist. Paste it into Claude, ChatGPT, v0, Lovable, Bolt or Cursor to build a page with the same design language.",
+  "pr.originality":
+    "The prompt asks for an original brand and fresh copy. It never includes the site's name, logo, text or images. Use it to learn from a design, not to copy or impersonate a site.",
+  "pr.stack": "Tech stack",
+  "pr.stack.html": "HTML + CSS",
+  "pr.stack.react-tailwind": "React + Tailwind",
+  "pr.stack.nextjs-tailwind": "Next.js + Tailwind",
+  "pr.language": "Prompt language",
+  "pr.copy": "Copy prompt",
+  "pr.copied": "Copied",
+  "pr.copyFailed": "Copy failed. Select the text and copy it manually.",
+  "pr.download": "Download .md",
+  "pr.size": "{words} words · {sections} sections in the blueprint",
+  "pr.noOutline":
+    "This report has no section outline (it was created with an older version). The prompt still includes tokens and components; re-scan the site for a full blueprint.",
+  "pr.preview": "Prompt preview",
   "ex.evidence.title": "Evidence bundle (.zip)",
   "ex.evidence.text":
     "The JSON report and WebDNA's screenshots. No third-party page assets are included.",
@@ -819,6 +839,7 @@ const tr: Messages = {
   "tab.a11y": "Erişilebilirlik",
   "tab.assets": "Varlıklar",
   "tab.export": "Dışa aktar",
+  "tab.prompt": "Yapay zekâ promptu",
   "ws.compare": "Başka bir taramayla karşılaştır",
   "ws.sections": "Rapor bölümleri",
 
@@ -880,6 +901,7 @@ const tr: Messages = {
   "smap.skipped": "atlandı",
   "role.page background": "sayfa arka planı",
   "role.primary text": "birincil metin",
+  "role.heading text": "başlık metni",
   "role.secondary text": "ikincil metin",
   "role.surface": "yüzey",
   "role.accent / primary action": "vurgu / birincil eylem",
@@ -1145,6 +1167,24 @@ const tr: Messages = {
     "Tailwind CSS v4 için bir @theme bloğu (renkler, yazı tipleri, metin boyutları, köşe yarıçapları, gölgeler).",
   "ex.markdown.title": "Markdown raporu",
   "ex.markdown.text": "Yapay zekâ kökeni kanıtları ve sınırlamalar dahil okunabilir bir özet.",
+  "pr.title": "Yapay zekâ araçları için yeniden yapım promptu",
+  "pr.intro":
+    "Bu raporun ölçümlerinden üretilen eksiksiz bir proje özeti: tasarım token'ları, bölüm bölüm yerleşim planı, bileşenler, duyarlı davranış, erişilebilirlik ve kabul kontrol listesi. Aynı tasarım diliyle bir sayfa yapmak için Claude, ChatGPT, v0, Lovable, Bolt veya Cursor'a yapıştır.",
+  "pr.originality":
+    "Prompt özgün bir marka ve yeni metinler ister. Sitenin adını, logosunu, metinlerini veya görsellerini asla içermez. Bir tasarımdan öğrenmek için kullan; bir siteyi kopyalamak veya taklit etmek için değil.",
+  "pr.stack": "Teknoloji",
+  "pr.stack.html": "HTML + CSS",
+  "pr.stack.react-tailwind": "React + Tailwind",
+  "pr.stack.nextjs-tailwind": "Next.js + Tailwind",
+  "pr.language": "Prompt dili",
+  "pr.copy": "Promptu kopyala",
+  "pr.copied": "Kopyalandı",
+  "pr.copyFailed": "Kopyalanamadı. Metni seçip elle kopyala.",
+  "pr.download": ".md indir",
+  "pr.size": "{words} kelime · yerleşim planında {sections} bölüm",
+  "pr.noOutline":
+    "Bu raporda bölüm planı yok (eski bir sürümle oluşturulmuş). Prompt yine de token'ları ve bileşenleri içerir; tam yerleşim planı için siteyi yeniden tara.",
+  "pr.preview": "Prompt önizlemesi",
   "ex.evidence.title": "Kanıt paketi (.zip)",
   "ex.evidence.text":
     "JSON rapor ve WebDNA'nın ekran görüntüleri. Üçüncü taraf sayfa varlıkları dahil edilmez.",

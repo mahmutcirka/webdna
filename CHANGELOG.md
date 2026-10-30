@@ -22,6 +22,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- **AI rebuild prompt** (new report tab and `prompt` export): a deterministic build brief for AI coding tools, generated from measurements only. It covers a measured design-character summary, colour/typography/spacing tokens (`:root` or Tailwind v4 `@theme`), a section-by-section page blueprint, component specs, responsive changes, accessibility requirements and an acceptance checklist, for HTML, React + Tailwind or Next.js + Tailwind, in English or Turkish. Originality guardrails require a placeholder brand and fresh copy; the site's name, domain, text and images are never included.
+- Page outline in the report (`outline`, schema 1.1.0): top-level sections classified as header, hero, card grid, media, form, footer or content, with desktop/mobile layout, card groups and word counts (no page text).
+- "heading text" colour role.
 - Turkish interface (EN/TR switcher in the header). The language is chosen from a saved cookie or the browser's Accept-Language and rendered on the server; analysis-engine text (finding explanations, warnings) remains English and is labelled as such.
 - Playwright end-to-end suite (`npm run test:e2e`) and CI job; SSRF canary and hostile-runtime integration tests.
 - `WEBDNA_OFFLINE_DNS` for offline testing.

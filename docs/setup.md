@@ -37,18 +37,18 @@ Scan data lives in `data/` (git-ignored) and is deleted after `WEBDNA_RETENTION_
 
 ## API reference
 
-| Method | Path                               | Description                                       |
-| ------ | ---------------------------------- | ------------------------------------------------- |
-| POST   | `/api/scans`                       | `{ url, viewports? }` → 202 `{ scan }`            |
-| GET    | `/api/scans?limit=`                | Recent scans                                      |
-| GET    | `/api/scans/:id`                   | Status with per-stage progress                    |
-| GET    | `/api/scans/:id/report`            | Completed report (409 if not completed)           |
-| POST   | `/api/scans/:id/cancel`            | Cancel a queued or running scan                   |
-| DELETE | `/api/scans/:id`                   | Delete a finished scan and its files              |
-| GET    | `/api/scans/:id/screenshots/:name` | `desktop-viewport.jpg`, `mobile-full.jpg`, …      |
-| GET    | `/api/scans/:id/export/:format`    | `json`, `css`, `tailwind`, `markdown`, `evidence` |
-| GET    | `/api/compare?a=&b=`               | Report comparison                                 |
-| GET    | `/api/detectors`                   | Detector catalog with versions and limitations    |
-| GET    | `/api/health`                      | Liveness and queue size                           |
+| Method | Path                               | Description                                                                              |
+| ------ | ---------------------------------- | ---------------------------------------------------------------------------------------- |
+| POST   | `/api/scans`                       | `{ url, viewports? }` → 202 `{ scan }`                                                   |
+| GET    | `/api/scans?limit=`                | Recent scans                                                                             |
+| GET    | `/api/scans/:id`                   | Status with per-stage progress                                                           |
+| GET    | `/api/scans/:id/report`            | Completed report (409 if not completed)                                                  |
+| POST   | `/api/scans/:id/cancel`            | Cancel a queued or running scan                                                          |
+| DELETE | `/api/scans/:id`                   | Delete a finished scan and its files                                                     |
+| GET    | `/api/scans/:id/screenshots/:name` | `desktop-viewport.jpg`, `mobile-full.jpg`, …                                             |
+| GET    | `/api/scans/:id/export/:format`    | `json`, `css`, `tailwind`, `markdown`, `prompt`, `evidence` (`prompt` takes `?stack=html | react-tailwind | nextjs-tailwind&lang=en | tr`) |
+| GET    | `/api/compare?a=&b=`               | Report comparison                                                                        |
+| GET    | `/api/detectors`                   | Detector catalog with versions and limitations                                           |
+| GET    | `/api/health`                      | Liveness and queue size                                                                  |
 
 Errors are `{ "error": { "code", "message", "details?" } }`.
