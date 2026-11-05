@@ -13,7 +13,7 @@
     "@webdna/analysis-core": "0.1.0",
     "@webdna/detectors": "0.1.0",
     "@webdna/shared": "0.1.0",
-    "fastify": "^5.12.7",
+    "fastify": "^5.12.8",
     "zod": "^4.6.7"
   },
   "devDependencies": {

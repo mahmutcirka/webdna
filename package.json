@@ -36,12 +36,12 @@
     "@playwright/test": "1.64.1",
     "@types/node": "^26.6.6",
     "concurrently": "^10.0.6",
-    "eslint": "^10.13.0",
+    "eslint": "^10.14.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "prettier": "^3.9.10",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.1",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   }
 }
